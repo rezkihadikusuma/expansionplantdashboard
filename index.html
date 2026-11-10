@@ -333,6 +333,9 @@
             <div id="boxRegister" class="hidden">
                 <h3 class="text-base font-bold mb-4 border-b pb-2 dark:border-slate-700">Project Member Registration</h3>
                 <form id="formRegister" onsubmit="handleRegister(event)" class="space-y-3">
+                    <p class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                        Your account will remain pending until an Admin assigns your access level.
+                    </p>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Full Name</label>
                         <input type="text" id="regName" required placeholder="e.g. Rezki Anugrah" class="w-full p-2 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none">
@@ -792,25 +795,26 @@
                     <div class="flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 class="text-xl font-bold">User Management</h2>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Create accounts and assign Admin, Editor, or Viewer access.</p>
+                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Assign an access level to pending registrations before they can sign in. Accounts created here are active immediately.</p>
                         </div>
                         <button type="button" onclick="openAddUserModal()" class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
                             <i class="fa-solid fa-user-plus mr-2" aria-hidden="true"></i>Add User
                         </button>
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard shadow-sm">
-                        <table class="list-table w-full min-w-[850px] border-collapse text-left">
+                        <table class="list-table w-full min-w-[950px] border-collapse text-left">
                             <thead>
                                 <tr class="border-b border-slate-200 dark:border-slate-700 text-xs uppercase text-slate-400">
                                     <th class="px-4 py-3 font-semibold">User</th>
                                     <th class="px-4 py-3 font-semibold">Job Title / Role</th>
                                     <th class="px-4 py-3 font-semibold">Email</th>
+                                    <th class="px-4 py-3 font-semibold">Account Status</th>
                                     <th class="px-4 py-3 font-semibold">Access</th>
                                     <th class="px-4 py-3 font-semibold">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                <tr><td colspan="5" class="py-6 text-center text-slate-400">User management is available to Admin users.</td></tr>
+                                <tr><td colspan="6" class="py-6 text-center text-slate-400">User management is available to Admin users.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1780,7 +1784,7 @@
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message || 'Registration failed.');
                 document.getElementById('formRegister')?.reset();
-                alert('Registration successful. Your account has Viewer access until an Admin assigns another level. Please sign in.');
+                alert('Registration successful. An Admin must assign your access before you can sign in. Please wait for approval.');
                 switchAuthView('login');
             } catch (error) {
                 console.error('Registration failed:', error);
@@ -3081,7 +3085,7 @@
 
         async function loadUsers() {
             const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Loading users...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Loading users...</td></tr>';
             try {
                 const params = new URLSearchParams({ action: 'list_users', token: getAuthToken() });
                 const response = await fetch(SCRIPT_URL, {
@@ -3100,7 +3104,7 @@
                 tbody.innerHTML = '';
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.colSpan = 5;
+                cell.colSpan = 6;
                 cell.className = 'py-6 text-center text-red-600 dark:text-red-400';
                 cell.textContent = `Failed to load users: ${error.message}`;
                 row.appendChild(cell);
@@ -3114,7 +3118,7 @@
             if (!users.length) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.colSpan = 5;
+                cell.colSpan = 6;
                 cell.className = 'py-6 text-center text-slate-400';
                 cell.textContent = 'No user accounts found.';
                 row.appendChild(cell);
@@ -3124,7 +3128,7 @@
 
             users.forEach(user => {
                 const row = document.createElement('tr');
-                row.dataset.searchText = [user.name, user.email, user.role, user.accessLevel].join(' ').toLocaleLowerCase();
+                row.dataset.searchText = [user.name, user.email, user.role, user.accessLevel, user.accountStatus].join(' ').toLocaleLowerCase();
                 row.dataset.email = user.email;
 
                 const userCell = document.createElement('td');
@@ -3149,18 +3153,33 @@
                 emailCell.className = 'px-4 py-3 text-slate-500 dark:text-slate-400';
                 emailCell.textContent = user.email;
 
+                const statusCell = document.createElement('td');
+                statusCell.className = 'px-4 py-3';
+                const statusBadge = document.createElement('span');
+                statusBadge.className = user.accountStatus === 'Active'
+                    ? 'inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    : 'inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-200';
+                statusBadge.textContent = user.accountStatus === 'Active' ? 'Active' : 'Pending assignment';
+                statusCell.appendChild(statusBadge);
+
                 const accessCell = document.createElement('td');
                 accessCell.className = 'px-4 py-3';
                 const accessSelect = document.createElement('select');
                 accessSelect.className = 'rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm';
                 accessSelect.setAttribute('aria-label', `Access level for ${user.name}`);
+                if (user.accountStatus !== 'Active') {
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = 'Assign access...';
+                    accessSelect.appendChild(placeholder);
+                }
                 ['Admin', 'Editor', 'Viewer'].forEach(level => {
                     const option = document.createElement('option');
                     option.value = level;
                     option.textContent = level;
                     accessSelect.appendChild(option);
                 });
-                accessSelect.value = user.accessLevel;
+                accessSelect.value = user.accountStatus === 'Active' ? user.accessLevel : '';
                 if (user.email.toLowerCase() === currentUser.email.toLowerCase()) {
                     accessSelect.disabled = true;
                     accessSelect.title = 'You cannot change your own Admin access.';
@@ -3172,11 +3191,14 @@
                 const saveButton = document.createElement('button');
                 saveButton.type = 'button';
                 saveButton.className = 'rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50';
-                saveButton.textContent = 'Save Access';
-                saveButton.disabled = accessSelect.disabled;
+                saveButton.textContent = user.accountStatus === 'Active' ? 'Save Access' : 'Assign & Activate';
+                saveButton.disabled = accessSelect.disabled || !accessSelect.value;
+                accessSelect.addEventListener('change', () => {
+                    saveButton.disabled = accessSelect.disabled || !accessSelect.value;
+                });
                 saveButton.addEventListener('click', () => saveUserAccess(user.email, accessSelect, saveButton));
                 actionCell.appendChild(saveButton);
-                row.append(userCell, roleCell, emailCell, accessCell, actionCell);
+                row.append(userCell, roleCell, emailCell, statusCell, accessCell, actionCell);
                 tbody.appendChild(row);
             });
             filterCurrentTable();
