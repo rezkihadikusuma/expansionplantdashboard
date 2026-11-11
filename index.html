@@ -159,13 +159,29 @@
             color: #FFF1B0 !important;
         }
         #authScreen {
-            background-color: #FFF3B0 !important;
+            background-color: #4A3310 !important;
+            background-image:
+                linear-gradient(135deg, rgba(42, 29, 10, 0.28), rgba(71, 45, 10, 0.42)),
+                url("https://archiindonesia.com/wp-content/uploads/2024/12/home-3-rev.jpg");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
             color: #4A3310;
         }
-        #authScreen > div {
-            background-color: #FFFCED !important;
-            border-color: #D8B85A !important;
+        #authScreen > div:first-child {
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100dvh - 2rem);
+            overflow-y: auto;
+            background-color: rgba(255, 250, 231, 0.78) !important;
+            border-color: rgba(240, 205, 112, 0.88) !important;
             color: #4A3310;
+            box-shadow: 0 24px 70px rgba(43, 29, 8, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            -webkit-backdrop-filter: blur(16px) saturate(125%);
+            backdrop-filter: blur(16px) saturate(125%);
+        }
+        #authScreen .bg-\[\#1B264F\] {
+            background: linear-gradient(135deg, rgba(91, 56, 14, 0.94), rgba(142, 99, 28, 0.9)) !important;
+            border: 1px solid rgba(255, 226, 151, 0.42);
         }
         #authScreen h2,
         #authScreen h3 { color: #4A3310; }
@@ -182,23 +198,41 @@
             --tw-ring-color: #B88728 !important;
             border-color: #B88728 !important;
         }
-        #authScreen .bg-\[\#1B264F\] { background-color: #754719 !important; }
+        #authScreen #btnLogin,
+        #authScreen #btnRegister {
+            background: linear-gradient(135deg, #B88728, #E2BC55) !important;
+            color: #42260D !important;
+            border: 1px solid rgba(116, 74, 16, 0.35);
+            box-shadow: 0 8px 18px rgba(116, 74, 16, 0.18);
+        }
+        #authScreen #btnLogin:hover,
+        #authScreen #btnRegister:hover {
+            background: linear-gradient(135deg, #A8781E, #D6A83A) !important;
+        }
         #authScreen button[class~="text-blue-600"] { color: #815A18 !important; }
         #authScreen button[class~="text-blue-600"]:hover { color: #57380D !important; }
         #authThemeToggle {
-            background-color: #F2DF96 !important;
-            border: 1px solid #C7A64D !important;
+            background-color: rgba(255, 248, 218, 0.86) !important;
+            border: 1px solid rgba(184, 135, 40, 0.75) !important;
             color: #4A3310 !important;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
         }
         #authThemeToggle:hover { background-color: #E9CF70 !important; }
         .dark #authScreen {
-            background-color: #67380F !important;
+            background-color: #251707 !important;
+            background-image:
+                linear-gradient(135deg, rgba(20, 14, 5, 0.54), rgba(42, 27, 7, 0.66)),
+                url("https://archiindonesia.com/wp-content/uploads/2024/12/home-3-rev.jpg");
             color: #FFF8D6;
         }
-        .dark #authScreen > div {
-            background-color: #84571E !important;
-            border-color: #C39B4D !important;
+        .dark #authScreen > div:first-child {
+            background-color: rgba(54, 37, 13, 0.8) !important;
+            border-color: rgba(214, 168, 58, 0.82) !important;
             color: #FFF8D6;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 241, 176, 0.16);
+            -webkit-backdrop-filter: blur(18px) saturate(115%);
+            backdrop-filter: blur(18px) saturate(115%);
         }
         .dark #authScreen h2,
         .dark #authScreen h3 { color: #FFF8D6; }
@@ -215,10 +249,21 @@
             --tw-ring-color: #F5D76E !important;
             border-color: #F5D76E !important;
         }
+        .dark #authScreen #btnLogin,
+        .dark #authScreen #btnRegister {
+            background: linear-gradient(135deg, #C99A32, #E7C458) !important;
+            color: #352208 !important;
+        }
+        .dark #authScreen #btnLogin:hover,
+        .dark #authScreen #btnRegister:hover {
+            background: linear-gradient(135deg, #D6A83A, #F0D477) !important;
+        }
         .dark #authThemeToggle {
-            background-color: #8B5C22 !important;
-            border-color: #C39B4D !important;
+            background-color: rgba(73, 48, 15, 0.9) !important;
+            border-color: rgba(214, 168, 58, 0.8) !important;
             color: #FFF8D6 !important;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
         }
         .dark #authThemeToggle:hover { background-color: #87571E !important; }
         .dark #authScreen button[class~="text-blue-600"] { color: #FFE27A !important; }
