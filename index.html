@@ -1022,6 +1022,73 @@
         </div>
     </div>
 
+    <div id="modalEquipmentVendors" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
+        <div class="m-4 max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-darkCard">
+            <div class="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
+                <div>
+                    <h3 id="equipment-vendors-title" class="text-lg font-bold">Equipment Vendors</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage vendor bids and attach multiple project document files to each vendor.</p>
+                </div>
+                <button type="button" onclick="toggleModal('modalEquipmentVendors')" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="Close">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+            <input id="equipmentVendorsRecordId" type="hidden">
+            <div id="equipment-vendor-cards" class="space-y-4"></div>
+            <div class="mt-5 flex flex-col-reverse justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row">
+                <button id="addEquipmentVendorButton" type="button" onclick="addEquipmentVendorCard()" class="rounded-lg border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50 dark:text-amber-200 dark:hover:bg-amber-900/20">
+                    <i class="fa-solid fa-plus mr-1" aria-hidden="true"></i>Add Vendor
+                </button>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="toggleModal('modalEquipmentVendors')" class="rounded-lg bg-slate-200 px-4 py-2 text-xs font-semibold dark:bg-slate-700">Close</button>
+                    <button id="saveEquipmentVendorsButton" type="button" onclick="saveEquipmentVendors()" class="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save Vendors</button>
+                </div>
+            </div>
+            <p id="equipment-vendors-status" class="mt-3 text-sm text-slate-500 dark:text-slate-400" role="status" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <div id="modalEquipmentRfq" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
+        <div class="m-4 max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-darkCard">
+            <div class="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
+                <div>
+                    <h3 id="equipment-rfq-title" class="text-lg font-bold">Equipment RFQ</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Add RFQ details and attach one or more files.</p>
+                </div>
+                <button type="button" onclick="toggleModal('modalEquipmentRfq')" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="Close">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+            <input id="equipmentRfqRecordId" type="hidden">
+            <div class="space-y-4">
+                <div>
+                    <label for="equipmentRfqNo" class="mb-1 block text-xs font-semibold uppercase text-slate-500">RFQ No.</label>
+                    <input id="equipmentRfqNo" type="text" maxlength="160" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                </div>
+                <div>
+                    <label for="equipmentRfqName" class="mb-1 block text-xs font-semibold uppercase text-slate-500">RFQ Name</label>
+                    <input id="equipmentRfqName" type="text" maxlength="200" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                </div>
+                <div>
+                    <label for="equipmentRfqStatus" class="mb-1 block text-xs font-semibold uppercase text-slate-500">RFQ Status</label>
+                    <input id="equipmentRfqStatus" type="text" maxlength="100" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                </div>
+                <section>
+                    <h4 class="mb-2 text-sm font-semibold">RFQ Attachments</h4>
+                    <div id="equipment-rfq-existing-documents" class="mb-3 space-y-2"></div>
+                    <label for="equipmentRfqFiles" class="mb-1 block text-xs font-semibold uppercase text-slate-500">Add Files</label>
+                    <input id="equipmentRfqFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" class="block w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF or image, up to 15 MB per file. Files are stored in the Equipment Files folder in Google Drive.</p>
+                </section>
+            </div>
+            <p id="equipment-rfq-status-message" class="mt-3 text-sm text-slate-500 dark:text-slate-400" role="status" aria-live="polite"></p>
+            <div class="mt-5 flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
+                <button type="button" onclick="toggleModal('modalEquipmentRfq')" class="rounded-lg bg-slate-200 px-4 py-2 text-xs font-semibold dark:bg-slate-700">Close</button>
+                <button id="saveEquipmentRfqButton" type="button" onclick="saveEquipmentRfq()" class="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save RFQ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== MODAL EDIT PROFILE ==================== -->
     <div id="modalProfile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
         <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 relative m-4 max-h-[90vh] overflow-y-auto">
@@ -1289,6 +1356,7 @@
         let equipmentPageSize = 10;
         const selectedBulkEquipmentIds = new Set();
         let equipmentPreviewObjectUrls = [];
+        let equipmentRfqDraftDocuments = [];
         let procurementItems = [];
         const PROCUREMENT_STAGES = [
             { value: 'Purchase Order (Initial)', quantityId: 'procurement-qty-purchase-order-initial' },
@@ -1345,6 +1413,10 @@
                     input.maxLength = ['specifications', 'revComments'].includes(field.key)
                         ? 2000
                         : ['dutyPoint32Mpta', 'dutyPoint38Mpta'].includes(field.key) ? 1000 : 500;
+                    if (['vendorName', 'vendorStatus'].includes(field.key)) {
+                        input.readOnly = true;
+                        input.title = 'Manage vendor names and bid status from the Vendor Name list.';
+                    }
                 }
                 input.className = 'w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm';
                 wrapper.append(label, input);
@@ -2609,6 +2681,33 @@
                         packageButton.textContent = value || '';
                         packageButton.addEventListener('click', () => openPackageVendors(item.id));
                         cell.appendChild(packageButton);
+                    } else if (!isPackage && equipmentField.key === 'vendorName') {
+                        const vendors = item.vendors || [];
+                        const vendorButton = document.createElement('button');
+                        vendorButton.type = 'button';
+                        vendorButton.className = 'max-w-xs whitespace-normal break-words text-left font-medium text-blue-600 hover:underline dark:text-accentDark';
+                        vendorButton.textContent = vendors.length
+                            ? vendors.map(vendor => vendor.name).join(', ')
+                            : canEditProjectData() ? 'Add vendor' : '—';
+                        vendorButton.title = 'Open equipment vendors and bidding attachments';
+                        vendorButton.addEventListener('click', () => openEquipmentVendors(item.id));
+                        cell.appendChild(vendorButton);
+                    } else if (!isPackage && ['rfqNo', 'rfqName'].includes(equipmentField.key)) {
+                        const rfqValue = equipmentField.key === 'rfqNo'
+                            ? (item.rfqNo || '')
+                            : (item.rfqName || '');
+                        if (rfqValue || canEditProjectData()) {
+                            const rfqButton = document.createElement('button');
+                            rfqButton.type = 'button';
+                            rfqButton.className = 'max-w-xs whitespace-normal break-words text-left font-medium text-blue-600 hover:underline dark:text-accentDark';
+                            rfqButton.textContent = rfqValue || 'Add RFQ';
+                            rfqButton.title = 'Open RFQ details and attachments';
+                            rfqButton.addEventListener('click', () => openEquipmentRfq(item.id));
+                            cell.appendChild(rfqButton);
+                        } else {
+                            cell.classList.add('text-slate-400');
+                            cell.textContent = '—';
+                        }
                     } else if (!isPackage && ['equipTag', 'equipmentName'].includes(equipmentField.key)) {
                         const detailsButton = document.createElement('button');
                         detailsButton.type = 'button';
@@ -2813,6 +2912,398 @@
             'Bid Evaluating',
             'Awarded'
         ];
+        const EQUIPMENT_VENDOR_STATUSES = PACKAGE_VENDOR_STATUSES;
+
+        function openEquipmentVendors(id) {
+            const item = records.equipment.find(record => String(record.id) === String(id));
+            if (!item) {
+                alert('The equipment was not found. Refresh the list and try again.');
+                return;
+            }
+            const editable = canEditProjectData();
+            document.getElementById('equipmentVendorsRecordId').value = item.id;
+            document.getElementById('equipment-vendors-title').textContent =
+                `Vendors — ${item.equipTag || item.equipmentName || `Equipment ${item.id}`}`;
+            document.getElementById('addEquipmentVendorButton').classList.toggle('hidden', !editable);
+            document.getElementById('saveEquipmentVendorsButton').classList.toggle('hidden', !editable);
+            document.getElementById('equipment-vendors-status').textContent = '';
+            renderEquipmentVendorCards(item.vendors || [], editable);
+            toggleModal('modalEquipmentVendors');
+        }
+
+        function renderEquipmentVendorCards(vendors, editable) {
+            const container = document.getElementById('equipment-vendor-cards');
+            container.replaceChildren();
+            if (!vendors.length) {
+                const message = document.createElement('p');
+                message.className = 'rounded-lg border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400';
+                message.textContent = editable
+                    ? 'No vendors added yet. Select “Add Vendor” to start.'
+                    : 'No vendors have been added to this equipment.';
+                container.appendChild(message);
+                return;
+            }
+            vendors.forEach(vendor => createEquipmentVendorCard(vendor, editable));
+        }
+
+        function createEquipmentVendorCard(vendor, editable = true) {
+            const container = document.getElementById('equipment-vendor-cards');
+            const card = document.createElement('section');
+            card.className = 'equipment-vendor-card rounded-xl border border-slate-200 p-4 dark:border-slate-700';
+            const attachments = Array.isArray(vendor.attachments) ? vendor.attachments.slice() : [];
+            card.dataset.attachments = JSON.stringify(attachments);
+
+            const header = document.createElement('div');
+            header.className = 'mb-4 flex items-center justify-between gap-3';
+            const heading = document.createElement('h4');
+            heading.className = 'font-semibold';
+            heading.textContent = vendor.name || 'New vendor';
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'shrink-0 text-sm font-medium text-red-600 hover:underline';
+            removeButton.textContent = 'Remove vendor';
+            removeButton.classList.toggle('hidden', !editable);
+            removeButton.addEventListener('click', () => {
+                card.remove();
+                if (!container.querySelector('.equipment-vendor-card')) {
+                    renderEquipmentVendorCards([], editable);
+                }
+            });
+            header.append(heading, removeButton);
+
+            const fields = document.createElement('div');
+            fields.className = 'grid grid-cols-1 gap-4 md:grid-cols-2';
+            const nameLabel = document.createElement('label');
+            nameLabel.className = 'block text-xs font-semibold uppercase text-slate-500';
+            nameLabel.textContent = 'Vendor Name';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.maxLength = 160;
+            nameInput.required = editable;
+            nameInput.value = vendor.name || '';
+            nameInput.placeholder = 'Enter vendor name';
+            nameInput.dataset.vendorField = 'name';
+            nameInput.disabled = !editable;
+            nameInput.className = 'mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800';
+            nameLabel.appendChild(nameInput);
+
+            const statusLabel = document.createElement('label');
+            statusLabel.className = 'block text-xs font-semibold uppercase text-slate-500';
+            statusLabel.textContent = 'Bid Status';
+            const statusSelect = document.createElement('select');
+            statusSelect.dataset.vendorField = 'status';
+            statusSelect.disabled = !editable;
+            statusSelect.className = 'mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800';
+            EQUIPMENT_VENDOR_STATUSES.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+            statusSelect.value = EQUIPMENT_VENDOR_STATUSES.includes(vendor.status)
+                ? vendor.status
+                : EQUIPMENT_VENDOR_STATUSES[0];
+            statusLabel.appendChild(statusSelect);
+            fields.append(nameLabel, statusLabel);
+
+            const attachmentSection = document.createElement('div');
+            attachmentSection.className = 'mt-4';
+            const attachmentTitle = document.createElement('h5');
+            attachmentTitle.className = 'mb-2 text-sm font-semibold';
+            attachmentTitle.textContent = 'Bidding Attachments';
+            const savedAttachments = document.createElement('div');
+            savedAttachments.className = 'mb-3 space-y-2';
+            savedAttachments.dataset.vendorSavedAttachments = 'true';
+            const fileInputs = document.createElement('div');
+            fileInputs.className = 'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3';
+
+            EQUIPMENT_FILE_FIELDS.forEach(field => {
+                const label = document.createElement('label');
+                label.className = 'block text-xs font-semibold text-slate-500';
+                label.textContent = field.label;
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.multiple = true;
+                input.disabled = !editable;
+                input.dataset.vendorAttachmentType = field.key;
+                input.accept = field.key === 'equipmentPhoto'
+                    ? 'image/jpeg,image/png,image/webp'
+                    : '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
+                input.className = 'mt-1 block w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs dark:border-slate-700 dark:bg-slate-800';
+                label.appendChild(input);
+                fileInputs.appendChild(label);
+            });
+
+            attachmentSection.append(attachmentTitle, savedAttachments);
+            if (editable) attachmentSection.appendChild(fileInputs);
+            card.append(header, fields, attachmentSection);
+            container.appendChild(card);
+            renderEquipmentVendorAttachments(card);
+        }
+
+        function renderEquipmentVendorAttachments(card) {
+            const container = card.querySelector('[data-vendor-saved-attachments]');
+            container.replaceChildren();
+            let attachments;
+            try {
+                attachments = JSON.parse(card.dataset.attachments || '[]');
+            } catch (error) {
+                throw new Error('Vendor attachment details are invalid.');
+            }
+            attachments.forEach((attachment, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800';
+                const fileId = getDriveFileId(attachment.url);
+                const label = EQUIPMENT_FILE_FIELDS.find(field => field.key === attachment.type)?.label || 'Bidding file';
+                if (fileId) {
+                    const link = document.createElement('a');
+                    link.href = `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'min-w-0 break-all text-blue-600 hover:underline dark:text-accentDark';
+                    link.textContent = `${label}: ${attachment.fileName || getEquipmentFileName(attachment.url, label)}`;
+                    row.appendChild(link);
+                } else {
+                    const text = document.createElement('span');
+                    text.className = 'text-red-600';
+                    text.textContent = `${label}: invalid attachment link`;
+                    row.appendChild(text);
+                }
+                if (canEditProjectData()) {
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'shrink-0 text-xs font-semibold text-red-600 hover:underline';
+                    removeButton.textContent = 'Remove file';
+                    removeButton.addEventListener('click', () => {
+                        attachments.splice(index, 1);
+                        card.dataset.attachments = JSON.stringify(attachments);
+                        renderEquipmentVendorAttachments(card);
+                    });
+                    row.appendChild(removeButton);
+                }
+                container.appendChild(row);
+            });
+            if (!attachments.length) {
+                const note = document.createElement('p');
+                note.className = 'text-xs text-slate-500 dark:text-slate-400';
+                note.textContent = 'No bidding files attached yet.';
+                container.appendChild(note);
+            }
+        }
+
+        function addEquipmentVendorCard() {
+            const emptyMessage = document.querySelector('#equipment-vendor-cards > p');
+            if (emptyMessage) emptyMessage.remove();
+            createEquipmentVendorCard({ name: '', status: EQUIPMENT_VENDOR_STATUSES[0], attachments: [] });
+        }
+
+        async function saveEquipmentVendors() {
+            const id = document.getElementById('equipmentVendorsRecordId').value;
+            const cards = [...document.querySelectorAll('#equipment-vendor-cards .equipment-vendor-card')];
+            const status = document.getElementById('equipment-vendors-status');
+            const button = document.getElementById('saveEquipmentVendorsButton');
+            const vendors = cards.map(card => ({
+                name: card.querySelector('[data-vendor-field="name"]').value.trim(),
+                status: card.querySelector('[data-vendor-field="status"]').value,
+                attachments: JSON.parse(card.dataset.attachments || '[]'),
+                fileInputs: [...card.querySelectorAll('[data-vendor-attachment-type]')]
+            }));
+            if (vendors.some(vendor => !vendor.name)) {
+                status.textContent = 'Enter a name for every vendor or remove the empty vendor.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            if (vendors.some(vendor => vendor.attachments.length +
+                vendor.fileInputs.reduce((total, input) => total + input.files.length, 0) > 100)) {
+                status.textContent = 'Each vendor can have no more than 100 bidding attachments.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+
+            button.disabled = true;
+            status.textContent = 'Uploading vendor bidding files...';
+            status.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
+            try {
+                let uploadCount = 0;
+                for (const vendor of vendors) {
+                    for (const input of vendor.fileInputs) {
+                        const type = input.dataset.vendorAttachmentType;
+                        const field = EQUIPMENT_FILE_FIELDS.find(option => option.key === type);
+                        for (const file of input.files) {
+                            if (type === 'equipmentPhoto' && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                                throw new Error(`${file.name}: Equipment Photo bidding attachments must be JPEG, PNG, or WebP images.`);
+                            }
+                            uploadCount++;
+                            status.textContent = `Uploading ${file.name} (${uploadCount})...`;
+                            const url = await uploadEquipmentFile(file);
+                            vendor.attachments.push({ type, fileName: file.name, url });
+                        }
+                    }
+                    delete vendor.fileInputs;
+                }
+                const parameters = new URLSearchParams({
+                    action: 'update_equipment_vendors',
+                    token: getAuthToken(),
+                    id,
+                    vendors: JSON.stringify(vendors)
+                });
+                status.textContent = 'Saving vendor details...';
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: parameters.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success' || !Array.isArray(result.vendors)) {
+                    throw new Error(result.message || 'The server did not confirm the vendor update.');
+                }
+                const item = records.equipment.find(record => String(record.id) === String(id));
+                if (item) {
+                    item.vendors = result.vendors;
+                    item.vendorName = result.vendors.map(vendor => vendor.name).join(', ');
+                    item.vendorStatus = result.vendors.map(vendor => vendor.status).join(', ');
+                }
+                toggleModal('modalEquipmentVendors');
+                renderRecords('equipment');
+            } catch (error) {
+                console.error('Failed to save equipment vendors:', error);
+                status.textContent = `Could not save vendors: ${error.message}`;
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        function openEquipmentRfq(id) {
+            const item = records.equipment.find(record => String(record.id) === String(id));
+            if (!item) {
+                alert('The equipment was not found. Refresh the list and try again.');
+                return;
+            }
+            const editable = canEditProjectData();
+            document.getElementById('equipmentRfqRecordId').value = item.id;
+            document.getElementById('equipment-rfq-title').textContent =
+                `RFQ — ${item.equipTag || item.equipmentName || `Equipment ${item.id}`}`;
+            document.getElementById('equipmentRfqNo').value = item.rfqNo || '';
+            document.getElementById('equipmentRfqName').value = item.rfqName || '';
+            document.getElementById('equipmentRfqStatus').value = item.rfqStatus || '';
+            document.getElementById('equipmentRfqFiles').value = '';
+            equipmentRfqDraftDocuments = [...(item.rfqDocuments || [])];
+            ['equipmentRfqNo', 'equipmentRfqName', 'equipmentRfqStatus', 'equipmentRfqFiles'].forEach(elementId => {
+                document.getElementById(elementId).disabled = !editable;
+            });
+            document.getElementById('saveEquipmentRfqButton').classList.toggle('hidden', !editable);
+            document.getElementById('equipment-rfq-status-message').textContent = '';
+            renderEquipmentRfqDocuments(equipmentRfqDraftDocuments, editable);
+            toggleModal('modalEquipmentRfq');
+        }
+
+        function renderEquipmentRfqDocuments(documents, editable) {
+            const container = document.getElementById('equipment-rfq-existing-documents');
+            container.replaceChildren();
+            if (!documents.length) {
+                const note = document.createElement('p');
+                note.className = 'text-sm text-slate-500 dark:text-slate-400';
+                note.textContent = 'No RFQ files attached yet.';
+                container.appendChild(note);
+                return;
+            }
+            documents.forEach((rfqDocument, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800';
+                const fileId = getDriveFileId(rfqDocument.url);
+                if (fileId) {
+                    const link = document.createElement('a');
+                    link.href = `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'min-w-0 break-all text-blue-600 hover:underline dark:text-accentDark';
+                    link.textContent = rfqDocument.fileName || getEquipmentFileName(rfqDocument.url, 'RFQ attachment');
+                    row.appendChild(link);
+                } else {
+                    const text = document.createElement('span');
+                    text.className = 'text-red-600';
+                    text.textContent = 'Invalid RFQ attachment link';
+                    row.appendChild(text);
+                }
+                if (editable) {
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'shrink-0 text-xs font-semibold text-red-600 hover:underline';
+                    removeButton.textContent = 'Remove file';
+                    removeButton.addEventListener('click', () => {
+                        equipmentRfqDraftDocuments.splice(index, 1);
+                        renderEquipmentRfqDocuments(equipmentRfqDraftDocuments, true);
+                    });
+                    row.appendChild(removeButton);
+                }
+                container.appendChild(row);
+            });
+        }
+
+        async function saveEquipmentRfq() {
+            const id = document.getElementById('equipmentRfqRecordId').value;
+            const item = records.equipment.find(record => String(record.id) === String(id));
+            const status = document.getElementById('equipment-rfq-status-message');
+            const button = document.getElementById('saveEquipmentRfqButton');
+            if (!item) {
+                status.textContent = 'The equipment was not found. Refresh the list and try again.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            const files = [...document.getElementById('equipmentRfqFiles').files];
+            const documents = [...equipmentRfqDraftDocuments];
+            if (documents.length + files.length > 100) {
+                status.textContent = 'Attach no more than 100 RFQ files per equipment.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            button.disabled = true;
+            status.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
+            try {
+                for (let index = 0; index < files.length; index++) {
+                    status.textContent = `Uploading RFQ file ${index + 1} of ${files.length}...`;
+                    const file = files[index];
+                    documents.push({
+                        fileName: file.name,
+                        url: await uploadEquipmentFile(file)
+                    });
+                }
+                const parameters = new URLSearchParams({
+                    action: 'update_equipment_rfq',
+                    token: getAuthToken(),
+                    id,
+                    rfqNo: document.getElementById('equipmentRfqNo').value.trim(),
+                    rfqName: document.getElementById('equipmentRfqName').value.trim(),
+                    rfqStatus: document.getElementById('equipmentRfqStatus').value.trim(),
+                    documents: JSON.stringify(documents)
+                });
+                status.textContent = 'Saving RFQ details...';
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: parameters.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success' || !Array.isArray(result.documents)) {
+                    throw new Error(result.message || 'The server did not confirm the RFQ update.');
+                }
+                item.rfqNo = result.rfqNo;
+                item.rfqName = result.rfqName;
+                item.rfqStatus = result.rfqStatus;
+                item.rfqDocuments = result.documents;
+                toggleModal('modalEquipmentRfq');
+                renderRecords('equipment');
+            } catch (error) {
+                console.error('Failed to save Equipment RFQ:', error);
+                status.textContent = `Could not save RFQ: ${error.message}`;
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+            } finally {
+                button.disabled = false;
+            }
+        }
 
         function openPackageVendors(id) {
             const item = records.package.find(record => String(record.id) === String(id));
