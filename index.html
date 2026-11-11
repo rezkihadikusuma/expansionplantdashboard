@@ -1029,7 +1029,7 @@
             <div class="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
                 <div>
                     <h3 id="equipment-vendors-title" class="text-lg font-bold">Equipment Vendors</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage vendor bids and attach multiple project document files to each vendor.</p>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage vendor bids and upload multiple Documents, Drawings, and Quotation/Proposal files with previews.</p>
                 </div>
                 <button type="button" onclick="toggleModal('modalEquipmentVendors')" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="Close">
                     <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
@@ -1441,6 +1441,7 @@
         let equipmentPageSize = 10;
         const selectedBulkEquipmentIds = new Set();
         let equipmentPreviewObjectUrls = [];
+        let equipmentVendorPreviewObjectUrls = [];
         let equipmentRfqDraftDocuments = [];
         let procurementItems = [];
         const PROCUREMENT_STAGES = [
@@ -2171,7 +2172,11 @@
         }
 
         function toggleModal(id) {
-            document.getElementById(id).classList.toggle('hidden');
+            const modal = document.getElementById(id);
+            if (id === 'modalEquipmentVendors' && !modal.classList.contains('hidden')) {
+                revokeEquipmentVendorPreviewUrls();
+            }
+            modal.classList.toggle('hidden');
         }
 
         document.addEventListener('keydown', event => {
@@ -2488,7 +2493,7 @@
             container.replaceChildren(note);
         }
 
-        async function loadEquipmentFilePreview(fileId, container, title, photoOnly = false) {
+        async function loadEquipmentFilePreview(fileId, container, title, photoOnly = false, objectUrlCollection = equipmentPreviewObjectUrls) {
             try {
                 const parameters = new URLSearchParams({
                     action: 'get_equipment_file',
@@ -2515,7 +2520,7 @@
                     bytes[index] = binary.charCodeAt(index);
                 }
                 const objectUrl = URL.createObjectURL(new Blob([bytes], { type: result.mimeType }));
-                equipmentPreviewObjectUrls.push(objectUrl);
+                objectUrlCollection.push(objectUrl);
                 const preview = result.mimeType.startsWith('image/')
                     ? document.createElement('img')
                     : document.createElement('iframe');
@@ -3012,8 +3017,51 @@
             'Awarded'
         ];
         const EQUIPMENT_VENDOR_STATUSES = PACKAGE_VENDOR_STATUSES;
+        const EQUIPMENT_VENDOR_ATTACHMENT_TYPES = [
+            { key: 'documents', label: 'Documents' },
+            { key: 'drawings', label: 'Drawings' },
+            { key: 'quotationProposal', label: 'Quotation/Proposal' }
+        ];
+        let equipmentVendorAttachmentInputId = 0;
+        const LEGACY_VENDOR_ATTACHMENT_LABELS = {
+            pfds: 'PFDs (MIN-1766-)',
+            pAndIds: 'P&IDs (MIN-1766-)',
+            datasheet: 'Datasheet',
+            equipmentPhoto: 'Equipment Photo',
+            installationReport: 'Installation Report',
+            commissioningReport: 'Commissioning Report',
+            handoverCertificate: 'Handover Certificate'
+        };
+
+        function revokeEquipmentVendorPreviewUrls() {
+            equipmentVendorPreviewObjectUrls.forEach(url => URL.revokeObjectURL(url));
+            equipmentVendorPreviewObjectUrls = [];
+            document.querySelectorAll('#equipment-vendor-cards .equipment-vendor-card').forEach(card => {
+                card._vendorLocalPreviewUrls = [];
+            });
+        }
+
+        function clearEquipmentVendorLocalPreviews(card) {
+            const previousUrls = card._vendorLocalPreviewUrls || [];
+            previousUrls.forEach(url => {
+                URL.revokeObjectURL(url);
+                equipmentVendorPreviewObjectUrls = equipmentVendorPreviewObjectUrls.filter(savedUrl => savedUrl !== url);
+            });
+            card._vendorLocalPreviewUrls = [];
+        }
+
+        function clearEquipmentVendorInputPreviews(card, input) {
+            const previousUrls = input._vendorPreviewUrls || [];
+            previousUrls.forEach(url => {
+                URL.revokeObjectURL(url);
+                equipmentVendorPreviewObjectUrls = equipmentVendorPreviewObjectUrls.filter(savedUrl => savedUrl !== url);
+                card._vendorLocalPreviewUrls = (card._vendorLocalPreviewUrls || []).filter(savedUrl => savedUrl !== url);
+            });
+            input._vendorPreviewUrls = [];
+        }
 
         function openEquipmentVendors(id) {
+            revokeEquipmentVendorPreviewUrls();
             const item = records.equipment.find(record => String(record.id) === String(id));
             if (!item) {
                 alert('The equipment was not found. Refresh the list and try again.');
@@ -3063,6 +3111,7 @@
             removeButton.textContent = 'Remove vendor';
             removeButton.classList.toggle('hidden', !editable);
             removeButton.addEventListener('click', () => {
+                clearEquipmentVendorLocalPreviews(card);
                 card.remove();
                 if (!container.querySelector('.equipment-vendor-card')) {
                     renderEquipmentVendorCards([], editable);
@@ -3109,35 +3158,79 @@
             attachmentSection.className = 'mt-4';
             const attachmentTitle = document.createElement('h5');
             attachmentTitle.className = 'mb-2 text-sm font-semibold';
-            attachmentTitle.textContent = 'Bidding Attachments';
+            attachmentTitle.textContent = 'Documents, Drawings & Quotation/Proposal';
             const savedAttachments = document.createElement('div');
-            savedAttachments.className = 'mb-3 space-y-2';
+            savedAttachments.className = 'mb-3 space-y-3';
             savedAttachments.dataset.vendorSavedAttachments = 'true';
             const fileInputs = document.createElement('div');
             fileInputs.className = 'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3';
 
-            EQUIPMENT_FILE_FIELDS.forEach(field => {
+            EQUIPMENT_VENDOR_ATTACHMENT_TYPES.forEach(field => {
+                const wrapper = document.createElement('div');
                 const label = document.createElement('label');
                 label.className = 'block text-xs font-semibold text-slate-500';
+                label.htmlFor = `vendor-${field.key}-${++equipmentVendorAttachmentInputId}`;
                 label.textContent = field.label;
                 const input = document.createElement('input');
+                input.id = label.htmlFor;
                 input.type = 'file';
                 input.multiple = true;
                 input.disabled = !editable;
                 input.dataset.vendorAttachmentType = field.key;
-                input.accept = field.key === 'equipmentPhoto'
-                    ? 'image/jpeg,image/png,image/webp'
-                    : '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
+                input.accept = '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
                 input.className = 'mt-1 block w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs dark:border-slate-700 dark:bg-slate-800';
-                label.appendChild(input);
-                fileInputs.appendChild(label);
+                const selectedFiles = document.createElement('div');
+                selectedFiles.className = 'mt-2 space-y-2';
+                selectedFiles.dataset.vendorSelectedFiles = field.key;
+                input.addEventListener('change', () => renderEquipmentVendorSelectedFiles(card, input, selectedFiles));
+                wrapper.append(label, input, selectedFiles);
+                fileInputs.appendChild(wrapper);
             });
 
             attachmentSection.append(attachmentTitle, savedAttachments);
-            if (editable) attachmentSection.appendChild(fileInputs);
+            if (editable) {
+                attachmentSection.appendChild(fileInputs);
+                const note = document.createElement('p');
+                note.className = 'mt-2 text-xs text-slate-500 dark:text-slate-400';
+                note.textContent = 'Select multiple PDF or image files (up to 15 MB each). Preview selected files here before saving.';
+                attachmentSection.appendChild(note);
+            }
             card.append(header, fields, attachmentSection);
             container.appendChild(card);
             renderEquipmentVendorAttachments(card);
+        }
+
+        function renderEquipmentVendorSelectedFiles(card, input, container) {
+            clearEquipmentVendorInputPreviews(card, input);
+            container.replaceChildren();
+            [...input.files].forEach(file => {
+                if (!['application/pdf', 'image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                    const message = document.createElement('p');
+                    message.className = 'text-xs text-red-600 dark:text-red-400';
+                    message.textContent = `${file.name}: select a PDF, JPEG, PNG, or WebP file.`;
+                    container.appendChild(message);
+                    return;
+                }
+                const objectUrl = URL.createObjectURL(file);
+                card._vendorLocalPreviewUrls = [...(card._vendorLocalPreviewUrls || []), objectUrl];
+                input._vendorPreviewUrls = [...(input._vendorPreviewUrls || []), objectUrl];
+                equipmentVendorPreviewObjectUrls.push(objectUrl);
+                const preview = file.type.startsWith('image/')
+                    ? document.createElement('img')
+                    : document.createElement('iframe');
+                preview.src = objectUrl;
+                preview.title = `${file.name} preview`;
+                preview.className = 'h-48 w-full rounded-lg border border-slate-200 bg-slate-100 object-contain dark:border-slate-700 dark:bg-slate-900';
+                if (preview.tagName === 'IMG') preview.alt = file.name;
+                else preview.loading = 'lazy';
+                const filePreview = document.createElement('details');
+                filePreview.className = 'rounded-lg border border-slate-200 p-2 dark:border-slate-700';
+                const summary = document.createElement('summary');
+                summary.className = 'cursor-pointer break-all text-xs font-medium text-blue-700 dark:text-accentDark';
+                summary.textContent = `Preview selected: ${file.name}`;
+                filePreview.append(summary, preview);
+                container.appendChild(filePreview);
+            });
         }
 
         function renderEquipmentVendorAttachments(card) {
@@ -3153,7 +3246,9 @@
                 const row = document.createElement('div');
                 row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800';
                 const fileId = getDriveFileId(attachment.url);
-                const label = EQUIPMENT_FILE_FIELDS.find(field => field.key === attachment.type)?.label || 'Bidding file';
+                const label = EQUIPMENT_VENDOR_ATTACHMENT_TYPES.find(field => field.key === attachment.type)?.label
+                    || LEGACY_VENDOR_ATTACHMENT_LABELS[attachment.type]
+                    || 'Bidding file';
                 if (fileId) {
                     const link = document.createElement('a');
                     link.href = `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`;
@@ -3162,6 +3257,21 @@
                     link.className = 'min-w-0 break-all text-blue-600 hover:underline dark:text-accentDark';
                     link.textContent = `${label}: ${attachment.fileName || getEquipmentFileName(attachment.url, label)}`;
                     row.appendChild(link);
+                    const previewDetails = document.createElement('details');
+                    previewDetails.className = 'w-full rounded-lg border border-slate-200 p-2 dark:border-slate-700';
+                    const summary = document.createElement('summary');
+                    summary.className = 'cursor-pointer text-xs font-semibold text-blue-700 dark:text-accentDark';
+                    summary.textContent = 'Preview file';
+                    const previewContainer = document.createElement('div');
+                    previewContainer.className = 'mt-2';
+                    previewDetails.append(summary, previewContainer);
+                    previewDetails.addEventListener('toggle', () => {
+                        if (!previewDetails.open || previewContainer.dataset.loaded) return;
+                        previewContainer.dataset.loaded = 'true';
+                        setEquipmentPreviewMessage(previewContainer, `Loading ${attachment.fileName || label}...`);
+                        loadEquipmentFilePreview(fileId, previewContainer, attachment.fileName || label, false, equipmentVendorPreviewObjectUrls);
+                    });
+                    row.appendChild(previewDetails);
                 } else {
                     const text = document.createElement('span');
                     text.className = 'text-red-600';
@@ -3236,8 +3346,8 @@
                         const type = input.dataset.vendorAttachmentType;
                         const field = EQUIPMENT_FILE_FIELDS.find(option => option.key === type);
                         for (const file of input.files) {
-                            if (type === 'equipmentPhoto' && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                                throw new Error(`${file.name}: Equipment Photo bidding attachments must be JPEG, PNG, or WebP images.`);
+                            if (!['application/pdf', 'image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                                throw new Error(`${file.name}: select a PDF, JPEG, PNG, or WebP file.`);
                             }
                             uploadCount++;
                             status.textContent = `Uploading ${file.name} (${uploadCount})...`;
