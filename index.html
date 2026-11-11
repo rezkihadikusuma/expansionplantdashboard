@@ -28,6 +28,8 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .upload-progress-overlay:not(.hidden) { display: flex; }
+        #uploadProgressOverlay { z-index: 9999; }
         .list-table tbody td { white-space: normal; overflow-wrap: anywhere; }
         #equipment-table-body td:not(:first-child) { max-width: 14rem; }
         #dashboardApp > div > header > div:first-child { flex: 1 1 0%; min-width: 0; }
@@ -1258,14 +1260,97 @@
         </div>
     </div>
 
+    <div id="uploadProgressOverlay" class="upload-progress-overlay fixed inset-0 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm" aria-hidden="true">
+        <section class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-darkCard" role="dialog" aria-modal="true" aria-labelledby="uploadProgressTitle" aria-describedby="uploadProgressMessage" tabindex="-1">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                    <i class="fa-solid fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 id="uploadProgressTitle" class="text-lg font-bold">Uploading files</h2>
+                    <p id="uploadProgressMessage" class="mt-1 break-words text-sm text-slate-500 dark:text-slate-300" role="status" aria-live="polite"></p>
+                </div>
+            </div>
+            <div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div id="uploadProgressBar" class="h-full rounded-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="mt-2 flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-300">
+                <span id="uploadProgressCount">0 of 0 files</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Please wait</span>
+            </div>
+            <p class="mt-4 text-xs text-slate-500 dark:text-slate-300">This page is locked until the upload and save are complete.</p>
+        </section>
+    </div>
+
     <!-- AUTHENTICATION, PROFILE & DASHBOARD LOGIC -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVubZ9IzewkaicPQvblD10Y94zqS0zUvYKGQl1125IQ_ZaP948ur2zGHNEBRFiembb/exec";
 
         let currentBase64Image = "";
+        let uploadProgressState = null;
         let currentUser = null;
         const RECORD_STATUSES = ['Purchase Order', 'On Progress', 'Completed'];
         const records = { package: [], equipment: [] };
+        function beginUploadProgress(title, totalFiles) {
+            if (uploadProgressState) {
+                throw new Error('Another upload is already in progress.');
+            }
+            if (!Number.isInteger(totalFiles) || totalFiles < 1) {
+                throw new Error('Upload progress requires at least one file.');
+            }
+
+            const overlay = document.getElementById('uploadProgressOverlay');
+            const dialog = overlay.querySelector('[role="dialog"]');
+            const inertElements = [];
+            for (const element of document.body.children) {
+                if (element === overlay || element.tagName === 'SCRIPT') continue;
+                inertElements.push({ element, wasInert: element.inert });
+                element.inert = true;
+            }
+
+            uploadProgressState = {
+                totalFiles,
+                inertElements,
+                previousFocus: document.activeElement,
+                previousOverflow: document.body.style.overflow
+            };
+            document.getElementById('uploadProgressTitle').textContent = title;
+            document.getElementById('uploadProgressMessage').textContent = 'Preparing upload...';
+            document.getElementById('uploadProgressCount').textContent = `0 of ${totalFiles} files`;
+            document.getElementById('uploadProgressBar').style.width = '0%';
+            overlay.setAttribute('aria-hidden', 'false');
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            dialog.focus();
+        }
+
+        function updateUploadProgress(message, completedFiles, currentFile = '') {
+            if (!uploadProgressState) return;
+            const completed = Math.min(uploadProgressState.totalFiles, Math.max(0, completedFiles));
+            const filename = currentFile ? `: ${currentFile}` : '';
+            document.getElementById('uploadProgressMessage').textContent = `${message}${filename}`;
+            document.getElementById('uploadProgressCount').textContent =
+                `${completed} of ${uploadProgressState.totalFiles} files`;
+            document.getElementById('uploadProgressBar').style.width =
+                `${(completed / uploadProgressState.totalFiles) * 100}%`;
+        }
+
+        function finishUploadProgress() {
+            if (!uploadProgressState) return;
+            const { inertElements, previousFocus, previousOverflow } = uploadProgressState;
+            const overlay = document.getElementById('uploadProgressOverlay');
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = previousOverflow;
+            inertElements.forEach(({ element, wasInert }) => {
+                element.inert = wasInert;
+            });
+            uploadProgressState = null;
+            if (previousFocus?.isConnected && typeof previousFocus.focus === 'function') {
+                previousFocus.focus();
+            }
+        }
+
         const EQUIPMENT_FIELDS = [
             { key: 'no', label: 'No.' },
             { key: 'pfds', label: 'PFDs (MIN-1766-)', type: 'file' },
@@ -1697,6 +1782,7 @@
         async function handleSaveProfile(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveProfile');
+            let progressStarted = false;
             btn.innerText = "Saving...";
             btn.disabled = true;
 
@@ -1714,6 +1800,9 @@
                         mimeType,
                         fileData
                     });
+                    beginUploadProgress('Uploading profile photo', 1);
+                    progressStarted = true;
+                    updateUploadProgress('Uploading profile photo', 0, 'Profile photo');
                     const uploadResponse = await fetch(SCRIPT_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -1725,9 +1814,11 @@
                         throw new Error(uploadResult.message || 'Google Drive did not confirm the profile photo upload.');
                     }
                     photoUrl = uploadResult.photoUrl;
+                    updateUploadProgress('Profile photo uploaded', 1, 'Profile photo');
                 }
 
                 btn.innerText = 'Saving profile...';
+                if (progressStarted) updateUploadProgress('Saving profile details', 1);
                 const profileParams = new URLSearchParams({
                     action: 'update_profile',
                     token: session.token,
@@ -1760,6 +1851,7 @@
             } finally {
                 btn.innerText = 'Save Changes';
                 btn.disabled = false;
+                if (progressStarted) finishUploadProgress();
             }
         }
 
@@ -2298,14 +2390,20 @@
             button.disabled = true;
             status.className = 'text-sm text-slate-500 dark:text-slate-400';
             const uploadedFiles = {};
+            let progressStarted = false;
             try {
+                beginUploadProgress('Attaching files to equipment', uploads.length);
+                progressStarted = true;
                 for (let index = 0; index < uploads.length; index++) {
                     const upload = uploads[index];
                     status.textContent = `Uploading ${upload.field.label} (${index + 1} of ${uploads.length}) to Google Drive...`;
+                    updateUploadProgress(`Uploading file ${index + 1} of ${uploads.length}`, index, upload.file.name);
                     uploadedFiles[upload.field.key] = await uploadEquipmentFile(upload.file);
+                    updateUploadProgress(`Uploaded file ${index + 1} of ${uploads.length}`, index + 1, upload.file.name);
                 }
 
                 status.textContent = 'Saving file attachments to the selected equipment...';
+                updateUploadProgress('Saving file attachments', uploads.length);
                 const params = new URLSearchParams({
                     action: 'attach_equipment_files',
                     token: getAuthToken(),
@@ -2332,6 +2430,7 @@
                 status.className = 'text-sm text-red-600 dark:text-red-400';
             } finally {
                 button.disabled = false;
+                if (progressStarted) finishUploadProgress();
             }
         }
 
@@ -3120,10 +3219,17 @@
                 return;
             }
 
+            const totalUploads = vendors.reduce((total, vendor) =>
+                total + vendor.fileInputs.reduce((count, input) => count + input.files.length, 0), 0);
+            let progressStarted = false;
             button.disabled = true;
             status.textContent = 'Uploading vendor bidding files...';
             status.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
             try {
+                if (totalUploads) {
+                    beginUploadProgress('Uploading vendor bidding files', totalUploads);
+                    progressStarted = true;
+                }
                 let uploadCount = 0;
                 for (const vendor of vendors) {
                     for (const input of vendor.fileInputs) {
@@ -3135,8 +3241,10 @@
                             }
                             uploadCount++;
                             status.textContent = `Uploading ${file.name} (${uploadCount})...`;
+                            updateUploadProgress(`Uploading file ${uploadCount} of ${totalUploads}`, uploadCount - 1, file.name);
                             const url = await uploadEquipmentFile(file);
                             vendor.attachments.push({ type, fileName: file.name, url });
+                            updateUploadProgress(`Uploaded file ${uploadCount} of ${totalUploads}`, uploadCount, file.name);
                         }
                     }
                     delete vendor.fileInputs;
@@ -3148,6 +3256,7 @@
                     vendors: JSON.stringify(vendors)
                 });
                 status.textContent = 'Saving vendor details...';
+                if (progressStarted) updateUploadProgress('Saving vendor details', totalUploads);
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -3172,6 +3281,7 @@
                 status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
             } finally {
                 button.disabled = false;
+                if (progressStarted) finishUploadProgress();
             }
         }
 
@@ -3261,14 +3371,21 @@
             }
             button.disabled = true;
             status.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
+            let progressStarted = false;
             try {
+                if (files.length) {
+                    beginUploadProgress('Uploading RFQ attachments', files.length);
+                    progressStarted = true;
+                }
                 for (let index = 0; index < files.length; index++) {
                     status.textContent = `Uploading RFQ file ${index + 1} of ${files.length}...`;
                     const file = files[index];
+                    updateUploadProgress(`Uploading file ${index + 1} of ${files.length}`, index, file.name);
                     documents.push({
                         fileName: file.name,
                         url: await uploadEquipmentFile(file)
                     });
+                    updateUploadProgress(`Uploaded file ${index + 1} of ${files.length}`, index + 1, file.name);
                 }
                 const parameters = new URLSearchParams({
                     action: 'update_equipment_rfq',
@@ -3280,6 +3397,7 @@
                     documents: JSON.stringify(documents)
                 });
                 status.textContent = 'Saving RFQ details...';
+                if (progressStarted) updateUploadProgress('Saving RFQ details', files.length);
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -3302,6 +3420,7 @@
                 status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
             } finally {
                 button.disabled = false;
+                if (progressStarted) finishUploadProgress();
             }
         }
 
@@ -3537,15 +3656,32 @@
                 .filter(upload => upload.file);
             const form = document.getElementById(isPackage ? 'formPackage' : 'formEquipment');
             const button = form.querySelector('button[type="submit"]');
+            let progressStarted = false;
             button.disabled = true;
             button.textContent = selectedEquipmentFiles.length ? 'Uploading files...' : 'Saving...';
 
             try {
-                for (const upload of selectedEquipmentFiles) {
+                if (selectedEquipmentFiles.length) {
+                    beginUploadProgress('Uploading equipment files', selectedEquipmentFiles.length);
+                    progressStarted = true;
+                }
+                for (let index = 0; index < selectedEquipmentFiles.length; index++) {
+                    const upload = selectedEquipmentFiles[index];
+                    updateUploadProgress(
+                        `Uploading file ${index + 1} of ${selectedEquipmentFiles.length}`,
+                        index,
+                        upload.file.name
+                    );
                     item[upload.field.key] = await uploadEquipmentFile(upload.file);
                     document.getElementById(`equipment-${upload.field.key}`).value = item[upload.field.key];
+                    updateUploadProgress(
+                        `Uploaded file ${index + 1} of ${selectedEquipmentFiles.length}`,
+                        index + 1,
+                        upload.file.name
+                    );
                 }
                 button.textContent = 'Saving...';
+                if (progressStarted) updateUploadProgress('Saving equipment details', selectedEquipmentFiles.length);
                 const params = new URLSearchParams({
                     action: `${id ? 'update' : 'add'}_${type}`,
                     token: getAuthToken(),
@@ -3570,6 +3706,7 @@
             } finally {
                 button.disabled = false;
                 button.textContent = 'Save';
+                if (progressStarted) finishUploadProgress();
             }
         }
 
