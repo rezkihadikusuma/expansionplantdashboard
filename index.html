@@ -992,7 +992,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pr-8">
                 <div>
                     <h3 id="package-vendors-title" class="text-lg font-bold">Package Vendors</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter vendor names, bid values, and evaluation status.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter each vendor's scope of work, bid value, and evaluation status.</p>
                 </div>
                 <button type="button" onclick="addPackageVendorRow()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg">
                     <i class="fa-solid fa-plus mr-1"></i>Add Vendor
@@ -1000,10 +1000,11 @@
             </div>
             <input id="vendorPackageId" type="hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[900px]">
+                <table class="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
                         <tr class="border-b border-slate-200 dark:border-slate-700 text-xs text-slate-400 uppercase">
                             <th class="py-3 px-3 font-semibold">Vendor Name</th>
+                            <th class="py-3 px-3 font-semibold">Scope of Work</th>
                             <th class="py-3 px-3 font-semibold">Vendor Value</th>
                             <th class="py-3 px-3 font-semibold">Status</th>
                             <th class="py-3 px-3 font-semibold">Actions</th>
@@ -3813,7 +3814,7 @@
             if (!vendors.length) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.colSpan = 4;
+                cell.colSpan = 5;
                 cell.className = 'py-6 text-center text-slate-400';
                 cell.textContent = 'No vendors added yet. Select “Add Vendor” to enter vendor details.';
                 row.appendChild(cell);
@@ -3836,6 +3837,18 @@
                 nameInput.className = 'w-full min-w-44 p-2 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm';
                 nameInput.dataset.vendorField = 'name';
                 nameCell.appendChild(nameInput);
+
+                const scopeCell = document.createElement('td');
+                scopeCell.className = 'py-2 px-3';
+                const scopeInput = document.createElement('textarea');
+                scopeInput.rows = 2;
+                scopeInput.maxLength = 2000;
+                scopeInput.value = vendor.scope || '';
+                scopeInput.placeholder = 'Describe the work included in this bid';
+                scopeInput.setAttribute('aria-label', 'Vendor scope of work');
+                scopeInput.className = 'w-full min-w-64 rounded-lg border bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800';
+                scopeInput.dataset.vendorField = 'scope';
+                scopeCell.appendChild(scopeInput);
 
                 const valueCell = document.createElement('td');
                 valueCell.className = 'py-2 px-3';
@@ -3903,7 +3916,7 @@
                 });
                 actionCell.appendChild(removeButton);
 
-                row.append(nameCell, valueCell, statusCell, actionCell);
+                row.append(nameCell, scopeCell, valueCell, statusCell, actionCell);
                 tbody.appendChild(row);
             });
         }
@@ -3916,11 +3929,12 @@
             renderPackageVendorRows([
                 ...Array.from(tbody.querySelectorAll('.package-vendor-row'), row => ({
                     name: row.querySelector('[data-vendor-field="name"]').value,
+                    scope: row.querySelector('[data-vendor-field="scope"]').value,
                     value: row.querySelector('[data-vendor-field="value"]').dataset.vendorValue,
                     currency: row.querySelector('[data-vendor-field="currency"]').value,
                     status: row.querySelector('[data-vendor-field="status"]').value
                 })),
-                { name: '', value: '', currency: 'IDR', status: PACKAGE_VENDOR_STATUSES[0] }
+                { name: '', scope: '', value: '', currency: 'IDR', status: PACKAGE_VENDOR_STATUSES[0] }
             ]);
         }
 
@@ -3929,6 +3943,7 @@
             const rows = Array.from(document.querySelectorAll('#package-vendors-table-body .package-vendor-row'));
             const vendors = rows.map(row => ({
                 name: row.querySelector('[data-vendor-field="name"]').value.trim(),
+                scope: row.querySelector('[data-vendor-field="scope"]').value.trim(),
                 value: row.querySelector('[data-vendor-field="value"]').dataset.vendorValue,
                 currency: row.querySelector('[data-vendor-field="currency"]').value,
                 status: row.querySelector('[data-vendor-field="status"]').value
