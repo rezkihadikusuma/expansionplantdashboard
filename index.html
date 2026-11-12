@@ -689,7 +689,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-bold">Package</h2>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">View packages, their status, and target completion dates.</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">View and manage package status, start dates, and target completion dates.</p>
                         </div>
                         <button data-editor-only onclick="openCurrentItemModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus"></i><span>Add Package</span>
@@ -697,8 +697,8 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                         <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">Total Package</p><p id="package-count-total" class="text-2xl font-bold mt-2">0</p></article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">Purchase Order</p><p id="package-count-purchase-order" class="text-2xl font-bold mt-2">0</p></article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">On Progress</p><p id="package-count-progress" class="text-2xl font-bold mt-2">0</p></article>
+                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">Listed / Request</p><p id="package-count-listed-request" class="text-2xl font-bold mt-2">0</p></article>
+                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">In Progress</p><p id="package-count-progress" class="text-2xl font-bold mt-2">0</p></article>
                         <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5"><p class="text-sm text-slate-500 dark:text-slate-400">Completed</p><p id="package-count-completed" class="text-2xl font-bold mt-2">0</p></article>
                     </div>
                     <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -709,9 +709,9 @@
                         <div class="overflow-x-auto">
                             <table class="list-table w-full text-left border-collapse">
                                 <thead><tr class="border-b border-slate-200 dark:border-slate-700 text-xs text-slate-400 uppercase">
-                                    <th class="py-3 px-4 font-semibold">Package No.</th><th class="py-3 px-4 font-semibold">Package Name</th><th class="py-3 px-4 font-semibold">Status</th><th class="py-3 px-4 font-semibold">Target Date</th><th id="package-actions-heading" class="py-3 px-4 font-semibold">Actions</th>
+                                    <th class="py-3 px-4 font-semibold">Package No.</th><th class="py-3 px-4 font-semibold">Package Name</th><th class="py-3 px-4 font-semibold">Status</th><th class="py-3 px-4 font-semibold">Start Date</th><th class="py-3 px-4 font-semibold">Target Date</th><th id="package-actions-heading" class="py-3 px-4 font-semibold">Actions</th>
                                 </tr></thead>
-                                <tbody id="package-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"><tr><td colspan="5" class="py-6 text-center text-slate-400">Loading package data...</td></tr></tbody>
+                                <tbody id="package-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"><tr><td colspan="6" class="py-6 text-center text-slate-400">Loading package data...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -936,7 +936,8 @@
                 <div><label for="packageNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Package No</label><input id="packageNo" type="text" maxlength="80" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                 <div><label for="packageName" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Package Name</label><input id="packageName" type="text" maxlength="160" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label for="packageStatus" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label><select id="packageStatus" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option>Purchase Order</option><option>On Progress</option><option>Completed</option></select></div>
+                    <div><label for="packageStatus" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label><select id="packageStatus" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></select></div>
+                    <div><label for="packageStartDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Start Date</label><input id="packageStartDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                     <div><label for="packageTargetDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Target Date</label><input id="packageTargetDate" type="date" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t dark:border-slate-700">
@@ -944,6 +945,42 @@
                     <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Save</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modalPackageWorkflow" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
+        <div class="m-4 max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-darkCard">
+            <div class="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
+                <div>
+                    <h3 id="package-workflow-title" class="text-lg font-bold">Package Workflow</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Track the start and finish date for each status stage.</p>
+                </div>
+                <button type="button" onclick="toggleModal('modalPackageWorkflow')" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="Close">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
+            </div>
+            <input id="packageWorkflowRecordId" type="hidden">
+            <div class="mb-5 max-w-sm">
+                <label for="packageWorkflowStatus" class="mb-1 block text-xs font-semibold uppercase text-slate-500">Current Status</label>
+                <select id="packageWorkflowStatus" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm dark:border-slate-700 dark:bg-slate-800"></select>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[640px] border-collapse text-left">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
+                            <th class="px-3 py-3 font-semibold">Status Stage</th>
+                            <th class="px-3 py-3 font-semibold">Start Date</th>
+                            <th class="px-3 py-3 font-semibold">Finish Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="package-workflow-dates" class="divide-y divide-slate-100 text-sm dark:divide-slate-800"></tbody>
+                </table>
+            </div>
+            <p id="package-workflow-message" class="mt-3 text-sm text-slate-500 dark:text-slate-400" role="status" aria-live="polite"></p>
+            <div class="mt-5 flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
+                <button type="button" onclick="toggleModal('modalPackageWorkflow')" class="rounded-lg bg-slate-200 px-4 py-2 text-xs font-semibold dark:bg-slate-700">Close</button>
+                <button id="savePackageWorkflowButton" type="button" onclick="savePackageWorkflow()" class="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white hover:bg-blue-700">Save Workflow</button>
+            </div>
         </div>
     </div>
 
@@ -963,7 +1000,7 @@
             </div>
             <input id="vendorPackageId" type="hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[700px]">
+                <table class="w-full text-left border-collapse min-w-[900px]">
                     <thead>
                         <tr class="border-b border-slate-200 dark:border-slate-700 text-xs text-slate-400 uppercase">
                             <th class="py-3 px-3 font-semibold">Vendor Name</th>
@@ -975,7 +1012,7 @@
                     <tbody id="package-vendors-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
                 </table>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Vendor values use the project's currency. Leave the value blank until a bid is received.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Choose IDR, USD, or AUD for each bid. Values use accounting-style currency formatting. Leave the value blank until a bid is received.</p>
             <div class="flex justify-end space-x-3 pt-5 mt-4 border-t dark:border-slate-700">
                 <button type="button" onclick="toggleModal('modalPackageVendors')" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
                 <button type="button" id="savePackageVendorsButton" onclick="savePackageVendors()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Save Vendors</button>
@@ -1290,6 +1327,15 @@
         let uploadProgressState = null;
         let currentUser = null;
         const RECORD_STATUSES = ['Purchase Order', 'On Progress', 'Completed'];
+        const PACKAGE_STATUSES = [
+            'Listed',
+            'Request',
+            'Purchase Order',
+            'SES/Goods Receipt',
+            'Installation',
+            'Commissioning',
+            'Completed'
+        ];
         const records = { package: [], equipment: [] };
         function beginUploadProgress(title, totalFiles) {
             if (uploadProgressState) {
@@ -1456,8 +1502,23 @@
         window.addEventListener('DOMContentLoaded', () => {
             initializeEquipmentForm();
             initializeBulkEquipmentFiles();
+            initializePackageStatuses();
             checkAuthSession();
         });
+
+        function initializePackageStatuses() {
+            [document.getElementById('packageStatus'), document.getElementById('packageWorkflowStatus')]
+                .forEach(select => {
+                    select.replaceChildren();
+                    PACKAGE_STATUSES.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status;
+                        select.appendChild(option);
+                    });
+                });
+            renderPackageStatusDates({}, true);
+        }
 
         function initializeEquipmentForm() {
             const formFields = document.getElementById('equipment-fields');
@@ -2696,6 +2757,7 @@
                 'Purchase Order': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
                 'Listed': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
                 'Request': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+                'SES/Goods Receipt': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
                 'Goods Receipt': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
                 'Installation': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
                 'Commissioning': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
@@ -2705,12 +2767,12 @@
 
             if (isPackage) {
                 document.getElementById('package-count-total').textContent = items.length;
-                document.getElementById('package-count-purchase-order').textContent =
-                    items.filter(item => normalizeStatus(item.status) === 'Purchase Order').length;
+                document.getElementById('package-count-listed-request').textContent =
+                    items.filter(item => ['Listed', 'Request'].includes(normalizePackageStatus(item.status))).length;
                 document.getElementById('package-count-progress').textContent =
-                    items.filter(item => item.status === 'On Progress').length;
+                    items.filter(item => !['Listed', 'Request', 'Completed'].includes(normalizePackageStatus(item.status))).length;
                 document.getElementById('package-count-completed').textContent =
-                    items.filter(item => item.status === 'Completed').length;
+                    items.filter(item => normalizePackageStatus(item.status) === 'Completed').length;
             } else {
                 renderEquipmentAreaGroups();
                 refreshBulkEquipmentOptions();
@@ -2750,7 +2812,7 @@
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
                 cell.colSpan = isPackage
-                    ? (canEditProjectData() ? 5 : 4)
+                    ? (canEditProjectData() ? 6 : 5)
                     : EQUIPMENT_FIELDS.length + (canEditProjectData() ? 1 : 0);
                 cell.className = 'py-6 text-center text-slate-400';
                 cell.textContent = isPackage
@@ -2771,7 +2833,7 @@
                 const row = document.createElement('tr');
                 row.dataset.searchText = Object.values(item).join(' ').toLocaleLowerCase();
                 const values = isPackage
-                    ? [item.packageNo, item.packageName, item.status, formatRecordDate(item.targetDate)]
+                    ? [item.packageNo, item.packageName, item.status, formatRecordDate(item.startDate), formatRecordDate(item.targetDate)]
                     : EQUIPMENT_TABLE_FIELDS.map(field => item[field.key] || '');
 
                 values.forEach((value, index) => {
@@ -2783,7 +2845,8 @@
                         packageButton.type = 'button';
                         packageButton.className = 'max-w-full whitespace-normal break-words font-medium text-blue-600 dark:text-accentDark hover:underline text-left';
                         packageButton.textContent = value || '';
-                        packageButton.addEventListener('click', () => openPackageVendors(item.id));
+                        packageButton.title = 'Open package workflow and stage dates';
+                        packageButton.addEventListener('click', () => openPackageWorkflow(item.id));
                         cell.appendChild(packageButton);
                     } else if (!isPackage && equipmentField.key === 'vendorName') {
                         const vendors = item.vendors || [];
@@ -2832,8 +2895,22 @@
                             cell.classList.add('text-slate-400');
                             cell.textContent = '—';
                         }
+                    } else if (isPackage && index === 2 && canEditProjectData()) {
+                        const statusSelect = document.createElement('select');
+                        statusSelect.className = `max-w-full rounded-full border-0 px-2.5 py-1 text-xs font-semibold ${statusClasses[normalizePackageStatus(value)] || statusClasses['Listed']}`;
+                        statusSelect.title = 'Change package status';
+                        statusSelect.setAttribute('aria-label', `Status for ${item.packageNo || item.packageName}`);
+                        PACKAGE_STATUSES.forEach(status => {
+                            const option = document.createElement('option');
+                            option.value = status;
+                            option.textContent = status;
+                            statusSelect.appendChild(option);
+                        });
+                        statusSelect.value = normalizePackageStatus(value);
+                        statusSelect.addEventListener('change', () => updatePackageStatus(item, statusSelect));
+                        cell.appendChild(statusSelect);
                     } else if ((isPackage && index === 2) || (!isPackage && equipmentField.key === 'equipmentStatus')) {
-                        const status = isPackage ? normalizeStatus(value) : normalizeEquipmentStatus(value);
+                        const status = isPackage ? normalizePackageStatus(value) : normalizeEquipmentStatus(value);
                         const badge = document.createElement('span');
                         badge.className = `inline-flex max-w-full whitespace-normal break-words px-2.5 py-1 text-xs font-semibold rounded-full ${statusClasses[status] || statusClasses['Purchase Order']}`;
                         badge.textContent = status;
@@ -2878,6 +2955,41 @@
             });
             if (isPackage) filterCurrentTable();
             else updateEquipmentPagination(matchingItems.length);
+        }
+
+        async function updatePackageStatus(item, statusSelect) {
+            const previousStatus = normalizePackageStatus(item.status);
+            const nextStatus = statusSelect.value;
+            statusSelect.disabled = true;
+            try {
+                const parameters = new URLSearchParams({
+                    action: 'update_package',
+                    token: getAuthToken(),
+                    id: String(item.id),
+                    packageNo: item.packageNo || '',
+                    packageName: item.packageName || '',
+                    status: nextStatus,
+                    startDate: item.startDate || '',
+                    targetDate: item.targetDate || ''
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: parameters.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'The server did not confirm the Package status update.');
+                }
+                item.status = nextStatus;
+                renderRecords('package');
+            } catch (error) {
+                console.error('Failed to update Package status:', error);
+                statusSelect.value = previousStatus;
+                statusSelect.disabled = false;
+                alert(`Could not update Package status: ${error.message}`);
+            }
         }
 
         function updateEquipmentPagination(totalItems) {
@@ -3008,6 +3120,11 @@
                 'Diproses': 'On Progress',
                 'Selesai': 'Completed'
             }[status] || status || '';
+        }
+
+        function normalizePackageStatus(status) {
+            if (status === 'On Progress') return 'Installation';
+            return PACKAGE_STATUSES.includes(status) ? status : 'Listed';
         }
 
         const PACKAGE_VENDOR_STATUSES = [
@@ -3547,6 +3664,149 @@
             toggleModal('modalPackageVendors');
         }
 
+        function openPackageWorkflow(id) {
+            const item = records.package.find(record => String(record.id) === String(id));
+            if (!item) {
+                alert('The package was not found. Refresh the list and try again.');
+                return;
+            }
+            const editable = canEditProjectData();
+            document.getElementById('packageWorkflowRecordId').value = item.id;
+            document.getElementById('package-workflow-title').textContent =
+                `Package Workflow — ${item.packageNo || item.packageName || `Package ${item.id}`}`;
+            document.getElementById('packageWorkflowStatus').value = normalizePackageStatus(item.status);
+            document.getElementById('packageWorkflowStatus').disabled = !editable;
+            document.getElementById('savePackageWorkflowButton').classList.toggle('hidden', !editable);
+            document.getElementById('package-workflow-message').textContent = '';
+            renderPackageStatusDates(item.statusDates || {}, editable);
+            toggleModal('modalPackageWorkflow');
+        }
+
+        function renderPackageStatusDates(statusDates, editable) {
+            const tbody = document.getElementById('package-workflow-dates');
+            if (!tbody) return;
+            tbody.replaceChildren();
+            PACKAGE_STATUSES.forEach(status => {
+                const stageDates = statusDates[status] || {};
+                const row = document.createElement('tr');
+                const stageCell = document.createElement('td');
+                stageCell.className = 'px-3 py-3 font-medium';
+                stageCell.textContent = status;
+                row.appendChild(stageCell);
+                [
+                    { key: 'startDate', label: `${status} Start Date` },
+                    { key: 'finishDate', label: `${status} Finish Date` }
+                ].forEach(dateField => {
+                    const cell = document.createElement('td');
+                    cell.className = 'px-3 py-2';
+                    const input = document.createElement('input');
+                    input.type = 'date';
+                    input.value = stageDates[dateField.key] || '';
+                    input.disabled = !editable;
+                    input.dataset.packageWorkflowStage = status;
+                    input.dataset.packageWorkflowDate = dateField.key;
+                    input.setAttribute('aria-label', dateField.label);
+                    input.className = 'w-full min-w-40 rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800';
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        function getPackageStatusDatesFromModal() {
+            const dates = {};
+            PACKAGE_STATUSES.forEach(status => {
+                dates[status] = { startDate: '', finishDate: '' };
+            });
+            document.querySelectorAll('#package-workflow-dates [data-package-workflow-stage]').forEach(input => {
+                dates[input.dataset.packageWorkflowStage][input.dataset.packageWorkflowDate] = input.value;
+            });
+            return dates;
+        }
+
+        async function savePackageWorkflow() {
+            const id = document.getElementById('packageWorkflowRecordId').value;
+            const item = records.package.find(record => String(record.id) === String(id));
+            const statusMessage = document.getElementById('package-workflow-message');
+            const button = document.getElementById('savePackageWorkflowButton');
+            if (!item) {
+                statusMessage.textContent = 'The package was not found. Refresh the list and try again.';
+                statusMessage.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            const statusDates = getPackageStatusDatesFromModal();
+            const invalidStage = PACKAGE_STATUSES.find(stage => {
+                const { startDate, finishDate } = statusDates[stage];
+                return startDate && finishDate && finishDate < startDate;
+            });
+            if (invalidStage) {
+                statusMessage.textContent = `${invalidStage} Finish Date cannot be earlier than its Start Date.`;
+                statusMessage.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            button.disabled = true;
+            statusMessage.textContent = 'Saving package workflow...';
+            statusMessage.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
+            try {
+                const parameters = new URLSearchParams({
+                    action: 'update_package_workflow',
+                    token: getAuthToken(),
+                    id,
+                    status: document.getElementById('packageWorkflowStatus').value,
+                    statusDates: JSON.stringify(statusDates)
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: parameters.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success' || !result.statusDates) {
+                    throw new Error(result.message || 'The server did not confirm the workflow update.');
+                }
+                item.status = result.packageStatus;
+                item.statusDates = result.statusDates;
+                toggleModal('modalPackageWorkflow');
+                renderRecords('package');
+            } catch (error) {
+                console.error('Failed to update package workflow:', error);
+                statusMessage.textContent = `Could not save package workflow: ${error.message}`;
+                statusMessage.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        function parsePackageVendorAmount(value, currency) {
+            let amount = String(value || '').trim().replace(/[^\d,.-]/g, '');
+            if (!amount) return '';
+            if (amount.includes(',') && amount.includes('.')) {
+                amount = amount.lastIndexOf(',') > amount.lastIndexOf('.')
+                    ? amount.replace(/\./g, '').replace(',', '.')
+                    : amount.replace(/,/g, '');
+            } else if (amount.includes(',')) {
+                amount = amount.replace(',', '.');
+            } else if (amount.includes('.') && currency === 'IDR') {
+                amount = amount.replace(/\./g, '');
+            }
+            const numericValue = Number(amount);
+            return Number.isFinite(numericValue) && numericValue >= 0 ? String(numericValue) : '';
+        }
+
+        function formatPackageVendorAmount(value, currency) {
+            const numericValue = Number(value);
+            if (!value || !Number.isFinite(numericValue)) return '';
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency,
+                currencyDisplay: 'code',
+                minimumFractionDigits: currency === 'IDR' ? 0 : 2,
+                maximumFractionDigits: currency === 'IDR' ? 0 : 2
+            }).format(numericValue);
+        }
+
         function renderPackageVendorRows(vendors) {
             const tbody = document.getElementById('package-vendors-table-body');
             tbody.replaceChildren();
@@ -3579,15 +3839,39 @@
 
                 const valueCell = document.createElement('td');
                 valueCell.className = 'py-2 px-3';
+                const valueControls = document.createElement('div');
+                valueControls.className = 'flex min-w-[19rem] gap-2';
+                const currencySelect = document.createElement('select');
+                currencySelect.className = 'w-24 shrink-0 rounded-lg border bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800';
+                currencySelect.dataset.vendorField = 'currency';
+                ['IDR', 'USD', 'AUD'].forEach(currency => {
+                    const option = document.createElement('option');
+                    option.value = currency;
+                    option.textContent = currency;
+                    currencySelect.appendChild(option);
+                });
+                currencySelect.value = ['IDR', 'USD', 'AUD'].includes(vendor.currency)
+                    ? vendor.currency
+                    : 'IDR';
                 const valueInput = document.createElement('input');
-                valueInput.type = 'number';
-                valueInput.min = '0';
-                valueInput.step = 'any';
-                valueInput.value = vendor.value || '';
-                valueInput.placeholder = 'Bid value';
-                valueInput.className = 'w-full min-w-36 p-2 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm';
+                valueInput.type = 'text';
+                valueInput.inputMode = 'decimal';
+                valueInput.value = formatPackageVendorAmount(vendor.value || '', currencySelect.value);
+                valueInput.dataset.vendorValue = parsePackageVendorAmount(vendor.value || '', currencySelect.value);
+                valueInput.placeholder = 'Enter amount';
+                valueInput.className = 'w-full min-w-36 rounded-lg border bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800';
                 valueInput.dataset.vendorField = 'value';
-                valueCell.appendChild(valueInput);
+                valueInput.addEventListener('input', () => {
+                    valueInput.dataset.vendorValue = parsePackageVendorAmount(valueInput.value, currencySelect.value);
+                });
+                valueInput.addEventListener('blur', () => {
+                    valueInput.value = formatPackageVendorAmount(valueInput.dataset.vendorValue, currencySelect.value);
+                });
+                currencySelect.addEventListener('change', () => {
+                    valueInput.value = formatPackageVendorAmount(valueInput.dataset.vendorValue, currencySelect.value);
+                });
+                valueControls.append(currencySelect, valueInput);
+                valueCell.appendChild(valueControls);
 
                 const statusCell = document.createElement('td');
                 statusCell.className = 'py-2 px-3';
@@ -3632,10 +3916,11 @@
             renderPackageVendorRows([
                 ...Array.from(tbody.querySelectorAll('.package-vendor-row'), row => ({
                     name: row.querySelector('[data-vendor-field="name"]').value,
-                    value: row.querySelector('[data-vendor-field="value"]').value,
+                    value: row.querySelector('[data-vendor-field="value"]').dataset.vendorValue,
+                    currency: row.querySelector('[data-vendor-field="currency"]').value,
                     status: row.querySelector('[data-vendor-field="status"]').value
                 })),
-                { name: '', value: '', status: PACKAGE_VENDOR_STATUSES[0] }
+                { name: '', value: '', currency: 'IDR', status: PACKAGE_VENDOR_STATUSES[0] }
             ]);
         }
 
@@ -3644,9 +3929,18 @@
             const rows = Array.from(document.querySelectorAll('#package-vendors-table-body .package-vendor-row'));
             const vendors = rows.map(row => ({
                 name: row.querySelector('[data-vendor-field="name"]').value.trim(),
-                value: row.querySelector('[data-vendor-field="value"]').value,
+                value: row.querySelector('[data-vendor-field="value"]').dataset.vendorValue,
+                currency: row.querySelector('[data-vendor-field="currency"]').value,
                 status: row.querySelector('[data-vendor-field="status"]').value
             }));
+            const hasInvalidValue = rows.some(row => {
+                const input = row.querySelector('[data-vendor-field="value"]');
+                return input.value.trim() && !input.dataset.vendorValue;
+            });
+            if (hasInvalidValue) {
+                alert('Enter each vendor value as a valid non-negative amount.');
+                return;
+            }
             if (vendors.some(vendor => !vendor.name)) {
                 alert('Enter a name for each vendor or remove the empty row.');
                 return;
@@ -3722,7 +4016,8 @@
                 document.getElementById('packageRecordId').value = item.id;
                 document.getElementById('packageNo').value = item.packageNo || '';
                 document.getElementById('packageName').value = item.packageName || '';
-                document.getElementById('packageStatus').value = normalizeStatus(item.status) || 'Purchase Order';
+                document.getElementById('packageStatus').value = normalizePackageStatus(item.status);
+                document.getElementById('packageStartDate').value = item.startDate || '';
                 document.getElementById('packageTargetDate').value = item.targetDate || '';
                 document.getElementById('package-modal-title').textContent = 'Edit Package';
                 toggleModal('modalPackage');
@@ -3750,7 +4045,8 @@
                     packageNo: document.getElementById('packageNo').value.trim(),
                     packageName: document.getElementById('packageName').value.trim(),
                     status: document.getElementById('packageStatus').value,
-                    targetDate: document.getElementById('packageTargetDate').value
+                    targetDate: document.getElementById('packageTargetDate').value,
+                    startDate: document.getElementById('packageStartDate').value
                 };
             } else {
                 item = {};
