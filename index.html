@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Package &amp; Equipment | 7.0 Mtpa Expansion Plant</title>
+    <title>Procurement, Package &amp; Equipment | 7.0 Mtpa Expansion Plant</title>
     <!-- Google Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -453,6 +453,10 @@
                         <i class="fa-solid fa-gears w-5"></i>
                         <span>Equipment</span>
                     </a>
+                    <a href="#procurement" data-page-link="procurement" onclick="showDashboardPage('procurement', event)" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white font-medium">
+                        <i class="fa-solid fa-cart-shopping w-5"></i>
+                        <span>Procurement</span>
+                    </a>
                     <a href="#history" id="historyNavLink" data-page-link="history" onclick="showDashboardPage('history', event)" class="hidden flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white font-medium">
                         <i class="fa-solid fa-clock-rotate-left w-5"></i>
                         <span>History</span>
@@ -630,7 +634,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-bold">Procurement</h2>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track item quantities at each procurement stage.</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track Service and Goods requests, purchase orders, and receipts.</p>
                         </div>
                         <button data-editor-only onclick="openProcurementModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus"></i>
@@ -638,27 +642,42 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Purchase Order</p>
-                            <p id="procurement-qty-purchase-order-initial" class="text-lg font-bold mt-2">0</p>
-                        </article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Purchase Requisition</p>
-                            <p id="procurement-qty-purchase-requisition" class="text-lg font-bold mt-2">0</p>
-                        </article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Purchase Order</p>
-                            <p id="procurement-qty-purchase-order" class="text-lg font-bold mt-2">0</p>
-                        </article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-                            <p class="text-sm text-slate-500 dark:text-slate-400">SES</p>
-                            <p id="procurement-qty-ses" class="text-lg font-bold mt-2">0</p>
-                        </article>
-                        <article class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Goods Receipt</p>
-                            <p id="procurement-qty-goods-receipt" class="text-lg font-bold mt-2">0</p>
-                        </article>
+                    <div id="procurement-type-filters" class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Filter procurement by type">
+                        <button type="button" data-procurement-type-filter="all" aria-pressed="true" onclick="selectProcurementType('all')" class="rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">All Items</span>
+                            <span id="procurement-count-all" class="mt-2 block text-2xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-type-filter="Service" aria-pressed="false" onclick="selectProcurementType('Service')" class="rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Service</span>
+                            <span id="procurement-count-service" class="mt-2 block text-2xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-type-filter="Goods" aria-pressed="false" onclick="selectProcurementType('Goods')" class="rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Goods</span>
+                            <span id="procurement-count-goods" class="mt-2 block text-2xl font-bold">0</span>
+                        </button>
+                    </div>
+
+                    <div id="procurement-status-filters" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4" aria-label="Filter procurement by status">
+                        <button type="button" data-procurement-status-filter="all" aria-pressed="true" onclick="selectProcurementStatus('all')" class="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">All Statuses</span>
+                            <span id="procurement-status-count-all" class="mt-2 block text-xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-status-filter="Request" aria-pressed="false" onclick="selectProcurementStatus('Request')" class="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Request</span>
+                            <span id="procurement-status-count-request" class="mt-2 block text-xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-status-filter="Purchase Requisition" aria-pressed="false" onclick="selectProcurementStatus('Purchase Requisition')" class="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Purchase Requisition</span>
+                            <span id="procurement-status-count-purchase-requisition" class="mt-2 block text-xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-status-filter="Purchase Order" aria-pressed="false" onclick="selectProcurementStatus('Purchase Order')" class="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Purchase Order</span>
+                            <span id="procurement-status-count-purchase-order" class="mt-2 block text-xl font-bold">0</span>
+                        </button>
+                        <button type="button" data-procurement-status-filter="Service Entry Sheet/Goods Receipt" aria-pressed="false" onclick="selectProcurementStatus('Service Entry Sheet/Goods Receipt')" class="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-amber-400 dark:border-slate-700 dark:bg-darkCard">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">SES/GR</span>
+                            <span id="procurement-status-count-service-entry-sheet-goods-receipt" class="mt-2 block text-xl font-bold">0</span>
+                        </button>
                     </div>
 
                     <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -667,18 +686,26 @@
                             <button type="button" onclick="loadProcurementItems()" class="text-sm text-blue-600 dark:text-accentDark hover:underline font-medium"><i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh</button>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="list-table w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-xs text-slate-400 uppercase">
-                                        <th class="py-3 px-4 font-semibold">Item</th>
-                                        <th class="py-3 px-4 font-semibold">Stage</th>
-                                        <th class="py-3 px-4 font-semibold">Quantity</th>
-                                        <th class="py-3 px-4 font-semibold">Date</th>
-                                        <th class="py-3 px-4 font-semibold">Status</th>
-                                    </tr>
-                                </thead>
+                            <table class="list-table w-full min-w-max text-left border-collapse">
+                                <thead><tr class="border-b border-slate-200 dark:border-slate-700 text-xs text-slate-400 uppercase">
+                                    <th class="py-3 px-3 font-semibold">Actions</th>
+                                    <th class="py-3 px-3 font-semibold">Status</th>
+                                    <th class="py-3 px-3 font-semibold">No</th>
+                                    <th class="py-3 px-3 font-semibold">Type</th>
+                                    <th class="py-3 px-3 font-semibold">Item Name</th>
+                                    <th class="py-3 px-3 font-semibold">ATC No</th>
+                                    <th class="py-3 px-3 font-semibold">ATC Date</th>
+                                    <th class="py-3 px-3 font-semibold">WBS Code</th>
+                                    <th class="py-3 px-3 font-semibold">No TOR</th>
+                                    <th class="py-3 px-3 font-semibold">Request</th>
+                                    <th class="py-3 px-3 font-semibold">No PR</th>
+                                    <th class="py-3 px-3 font-semibold">Tanggal PR</th>
+                                    <th class="py-3 px-3 font-semibold">No PO</th>
+                                    <th class="py-3 px-3 font-semibold">Tanggal PO</th>
+                                    <th class="py-3 px-3 font-semibold">SES/GR</th>
+                                </tr></thead>
                                 <tbody id="procurement-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                    <tr><td colspan="5" class="py-6 text-center text-slate-400">No procurement items yet.</td></tr>
+                                    <tr><td colspan="15" class="py-6 text-center text-slate-400">No procurement items yet.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -873,57 +900,53 @@
     </div>
 
     <div id="modalProcurement" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
-        <div class="bg-white dark:bg-darkCard w-full max-w-lg rounded-2xl shadow-2xl p-6 relative m-4">
+        <div class="bg-white dark:bg-darkCard w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative m-4 max-h-[92vh] overflow-y-auto">
             <button type="button" onclick="toggleModal('modalProcurement')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white" aria-label="Close">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
-            <h3 class="text-lg font-bold mb-1">Add Procurement Item</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">The item will be saved to the project spreadsheet.</p>
+            <h3 id="procurement-modal-title" class="text-lg font-bold mb-1">Add Procurement Item</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Add the item and its procurement reference dates.</p>
 
             <form id="formProcurement" onsubmit="submitProcurementItem(event)" class="space-y-4">
-                <div>
-                    <label for="procurementItemName" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Item Name</label>
-                    <input id="procurementItemName" type="text" required maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="procurementItemQuantity" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Quantity</label>
-                        <input id="procurementItemQuantity" type="number" min="0.01" step="any" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label for="procurementItemUnit" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Unit</label>
-                        <input id="procurementItemUnit" type="text" value="pcs" required maxlength="20" placeholder="pcs, set, kg..." class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div>
-                    <label for="procurementItemStage" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Procurement Stage</label>
-                    <select id="procurementItemStage" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm">
-                        <option value="Purchase Order (Initial)">Purchase Order</option>
-                        <option value="Purchase Requisition">Purchase Requisition</option>
-                        <option value="Purchase Order">Purchase Order</option>
-                        <option value="SES">SES</option>
-                        <option value="Goods Receipt">Goods Receipt</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="procurementItemDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Date</label>
-                        <input id="procurementItemDate" type="date" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm">
-                    </div>
-                    <div>
-                        <label for="procurementItemStatus" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label>
-                        <select id="procurementItemStatus" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm">
-                            <option value="Purchase Order">Purchase Order</option>
-                            <option value="On Progress">On Progress</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
+                <input id="procurementItemId" type="hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label for="procurementItemType" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Type</label><select id="procurementItemType" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option>Service</option><option>Goods</option></select></div>
+                    <div><label for="procurementItemStatus" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label><select id="procurementItemStatus" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option>Request</option><option>Purchase Requisition</option><option>Purchase Order</option><option>Service Entry Sheet/Goods Receipt</option></select></div>
+                    <div class="sm:col-span-2"><label for="procurementItemName" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Item Name</label><input id="procurementItemName" type="text" required maxlength="200" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementAtcNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">ATC No</label><input id="procurementAtcNo" maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementAtcDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">ATC Date</label><input id="procurementAtcDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementWbsCode" class="block text-xs font-semibold uppercase text-slate-500 mb-1">WBS Code</label><input id="procurementWbsCode" maxlength="100" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementTorNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">No TOR</label><input id="procurementTorNo" maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementRequestDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Request Date</label><input id="procurementRequestDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementPrNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">No PR</label><input id="procurementPrNo" maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementPrDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Tanggal PR</label><input id="procurementPrDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementPoNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">No PO</label><input id="procurementPoNo" maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementPoDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Tanggal PO</label><input id="procurementPoDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementSesGrDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">SES/GR Date</label><input id="procurementSesGrDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div class="sm:col-span-2"><label for="procurementDescription" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Description</label><textarea id="procurementDescription" rows="4" maxlength="10000" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm" placeholder="Describe the service or goods"></textarea></div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t dark:border-slate-700">
                     <button type="button" onclick="toggleModal('modalProcurement')" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Save Item</button>
+                    <button id="saveProcurementItemButton" type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Save Item</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modalProcurementDetails" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
+        <div class="bg-white dark:bg-darkCard w-full max-w-6xl rounded-2xl shadow-2xl p-6 relative m-4 max-h-[92vh] overflow-y-auto">
+            <div class="sticky -top-6 z-20 -mx-6 -mt-6 mb-5 flex items-start justify-between gap-4 rounded-t-2xl bg-[#D6A83A] px-6 py-4 text-[#42260D] shadow-md">
+                <div><h3 id="procurement-details-title" class="text-xl font-bold">Procurement Item</h3><p id="procurement-details-subtitle" class="mt-1 text-sm"></p></div>
+                <button type="button" onclick="closeProcurementDetails()" class="rounded-lg p-2 hover:bg-[#E8BF4E]" aria-label="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="procurement-details-photo" class="hidden mb-6"></div>
+            <div id="procurement-details-fields" class="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+            <section class="mb-6"><h4 class="mb-3 text-base font-bold">Documents</h4><div id="procurement-details-documents" class="grid grid-cols-1 gap-4 lg:grid-cols-2"></div></section>
+            <section data-editor-only class="border-t border-slate-200 pt-5 dark:border-slate-700">
+                <h4 class="mb-1 text-base font-bold">Upload Documents</h4>
+                <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">Files are stored in the separate Procurement Files folder in Google Drive.</p>
+                <div id="procurement-upload-fields" class="grid grid-cols-1 gap-4 sm:grid-cols-2"></div>
+            </section>
         </div>
     </div>
 
@@ -1338,6 +1361,20 @@
             'Completed'
         ];
         const records = { package: [], equipment: [] };
+        const PROCUREMENT_STATUSES = [
+            'Request',
+            'Purchase Requisition',
+            'Purchase Order',
+            'Service Entry Sheet/Goods Receipt'
+        ];
+        const PROCUREMENT_FILE_TYPES = [
+            'Equipment Photo',
+            'Authority to Commit (ATC) Form',
+            'Project Change Notification (PCN) Form',
+            'Payment Term Variation (PTV) Form',
+            'Purchase Order',
+            'Service Entry Sheet/Goods Receipt'
+        ];
         function beginUploadProgress(title, totalFiles) {
             if (uploadProgressState) {
                 throw new Error('Another upload is already in progress.');
@@ -1491,13 +1528,9 @@
         let equipmentVendorPreviewObjectUrls = [];
         let equipmentRfqDraftDocuments = [];
         let procurementItems = [];
-        const PROCUREMENT_STAGES = [
-            { value: 'Purchase Order (Initial)', quantityId: 'procurement-qty-purchase-order-initial' },
-            { value: 'Purchase Requisition', quantityId: 'procurement-qty-purchase-requisition' },
-            { value: 'Purchase Order', quantityId: 'procurement-qty-purchase-order' },
-            { value: 'SES', quantityId: 'procurement-qty-ses' },
-            { value: 'Goods Receipt', quantityId: 'procurement-qty-goods-receipt' }
-        ];
+        let selectedProcurementType = 'all';
+        let selectedProcurementStatus = 'all';
+        let procurementPreviewObjectUrls = [];
         let currentPage = 'package';
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -1638,6 +1671,7 @@
                 document.getElementById('dashboardApp').classList.remove('hidden');
                 loadRecords('package');
                 loadRecords('equipment');
+                loadProcurementItems();
             } catch (error) {
                 console.error('Could not restore the login session:', error);
                 localStorage.removeItem('plant_user');
@@ -2237,6 +2271,10 @@
             const modal = document.getElementById(id);
             if (id === 'modalEquipmentVendors' && !modal.classList.contains('hidden')) {
                 revokeEquipmentVendorPreviewUrls();
+            }
+            if (id === 'modalProcurementDetails' && !modal.classList.contains('hidden')) {
+                procurementPreviewObjectUrls.forEach(URL.revokeObjectURL);
+                procurementPreviewObjectUrls = [];
             }
             modal.classList.toggle('hidden');
         }
@@ -4004,6 +4042,10 @@
                 renderRecords('equipment');
                 return;
             }
+            if (currentPage === 'procurement') {
+                renderProcurementItems();
+                return;
+            }
             document.querySelectorAll(`#${currentPage}-table-body tr`).forEach(row => {
                 row.classList.toggle('hidden', Boolean(query) && !row.dataset.searchText?.includes(query));
             });
@@ -4460,121 +4502,264 @@
             filterCurrentTable();
         }
 
+        function selectProcurementType(type) {
+            selectedProcurementType = type;
+            document.querySelectorAll('[data-procurement-type-filter]').forEach(button => {
+                const active = button.dataset.procurementTypeFilter === type;
+                button.setAttribute('aria-pressed', String(active));
+                button.classList.toggle('ring-2', active);
+                button.classList.toggle('ring-amber-500', active);
+            });
+            renderProcurementItems();
+        }
+
+        function selectProcurementStatus(status) {
+            selectedProcurementStatus = status;
+            document.querySelectorAll('[data-procurement-status-filter]').forEach(button => {
+                const active = button.dataset.procurementStatusFilter === status;
+                button.setAttribute('aria-pressed', String(active));
+                button.classList.toggle('ring-2', active);
+                button.classList.toggle('ring-amber-500', active);
+            });
+            renderProcurementItems();
+        }
+
         function renderProcurementItems() {
             const tbody = document.getElementById('procurement-table-body');
             tbody.replaceChildren();
-
-            PROCUREMENT_STAGES.forEach(stage => {
-                const quantitiesByUnit = new Map();
-                procurementItems
-                    .filter(item => item.stage === stage.value)
-                    .forEach(item => {
-                        const unit = String(item.unit || 'pcs').trim() || 'pcs';
-                        const unitKey = unit.toLocaleLowerCase();
-                        const current = quantitiesByUnit.get(unitKey);
-                        quantitiesByUnit.set(unitKey, {
-                            unit: current ? current.unit : unit,
-                            quantity: (current ? current.quantity : 0) + Number(item.quantity || 0)
-                        });
-                    });
-
-                const totalText = Array.from(quantitiesByUnit.values())
-                    .map(total => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(total.quantity)} ${total.unit}`)
-                    .join(' · ');
-                document.getElementById(stage.quantityId).textContent = totalText || '0';
+            const typeCounts = {
+                all: procurementItems.length,
+                Service: procurementItems.filter(item => item.type === 'Service').length,
+                Goods: procurementItems.filter(item => item.type === 'Goods').length
+            };
+            Object.entries(typeCounts).forEach(([type, count]) => {
+                document.getElementById(`procurement-count-${type.toLowerCase()}`).textContent = count;
             });
 
-            if (procurementItems.length === 0) {
+            const typeItems = procurementItems.filter(item =>
+                selectedProcurementType === 'all' || item.type === selectedProcurementType
+            );
+            const statusCounts = {
+                all: typeItems.length,
+                ...Object.fromEntries(PROCUREMENT_STATUSES.map(status => [
+                    status,
+                    typeItems.filter(item => item.status === status).length
+                ]))
+            };
+            document.getElementById('procurement-status-count-all').textContent = statusCounts.all;
+            PROCUREMENT_STATUSES.forEach(status => {
+                const id = status.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                document.getElementById(`procurement-status-count-${id}`).textContent = statusCounts[status];
+            });
+
+            const query = document.getElementById('recordSearch').value.trim().toLocaleLowerCase();
+            const filtered = typeItems.filter(item =>
+                (selectedProcurementStatus === 'all' || item.status === selectedProcurementStatus) &&
+                (!query || [
+                    item.type, item.status, item.name, item.atcNo, item.atcDate, item.wbsCode,
+                    item.torNo, item.requestDate, item.prNo, item.prDate, item.poNo, item.poDate,
+                    item.sesGrDate, item.description
+                ].join(' ').toLocaleLowerCase().includes(query))
+            );
+            if (!filtered.length) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.colSpan = 5;
+                cell.colSpan = 15;
                 cell.className = 'py-6 text-center text-slate-400';
-                cell.textContent = 'No procurement items yet.';
+                cell.textContent = procurementItems.length ? 'No items match the selected filters.' : 'No procurement items yet.';
                 row.appendChild(cell);
                 tbody.appendChild(row);
                 return;
             }
 
             const statusClasses = {
-                'Purchase Order': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
-                'On Progress': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-                'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                'Request': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+                'Purchase Requisition': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                'Purchase Order': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+                'Service Entry Sheet/Goods Receipt': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
             };
-            const sortedItems = [...procurementItems].sort((a, b) => b.date.localeCompare(a.date));
-            sortedItems.forEach(item => {
+            filtered.forEach(item => {
                 const row = document.createElement('tr');
-                const values = [
-                    { text: item.name, className: 'py-3 px-4 font-medium' },
-                    { text: item.stage === 'Purchase Order (Initial)' ? 'Purchase Order' : item.stage, className: 'py-3 px-4 text-slate-500 dark:text-slate-400' },
-                    {
-                        text: `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(item.quantity))} ${item.unit || 'pcs'}`,
-                        className: 'py-3 px-4 text-slate-500 dark:text-slate-400'
-                    },
-                    {
-                        text: new Date(`${item.date}T00:00:00`).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }),
-                        className: 'py-3 px-4 text-slate-500 dark:text-slate-400'
-                    }
-                ];
+                row.dataset.searchText = [
+                    item.type, item.status, item.name, item.atcNo, item.atcDate, item.wbsCode,
+                    item.torNo, item.requestDate, item.prNo, item.prDate, item.poNo, item.poDate,
+                    item.sesGrDate, item.description
+                ].join(' ').toLocaleLowerCase();
 
-                values.forEach(value => {
-                    const cell = document.createElement('td');
-                    cell.className = value.className;
-                    cell.textContent = value.text;
-                    row.appendChild(cell);
-                });
+                const actions = document.createElement('td');
+                actions.className = 'px-3 py-2 whitespace-nowrap';
+                if (canEditProjectData()) {
+                    const editButton = document.createElement('button');
+                    editButton.type = 'button';
+                    editButton.className = 'mr-2 rounded p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-slate-700';
+                    editButton.title = 'Edit item';
+                    editButton.setAttribute('aria-label', `Edit ${item.name}`);
+                    editButton.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+                    editButton.addEventListener('click', () => openProcurementModal(item.id));
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'rounded p-2 text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-slate-700';
+                    removeButton.title = 'Remove item';
+                    removeButton.setAttribute('aria-label', `Remove ${item.name}`);
+                    removeButton.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+                    removeButton.addEventListener('click', () => deleteProcurementItem(item.id));
+                    actions.append(editButton, removeButton);
+                } else {
+                    actions.textContent = '—';
+                }
+                row.appendChild(actions);
 
                 const statusCell = document.createElement('td');
-                statusCell.className = 'py-3 px-4';
-                const badge = document.createElement('span');
-                const status = normalizeStatus(item.status);
-                badge.className = `inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${statusClasses[status] || statusClasses['Purchase Order']}`;
-                badge.textContent = status;
-                statusCell.appendChild(badge);
+                statusCell.className = 'px-3 py-2';
+                if (canEditProjectData()) {
+                    const select = document.createElement('select');
+                    select.className = 'min-w-40 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-800';
+                    select.setAttribute('aria-label', `Status for ${item.name}`);
+                    PROCUREMENT_STATUSES.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status === 'Service Entry Sheet/Goods Receipt' ? 'SES/GR' : status;
+                        select.appendChild(option);
+                    });
+                    select.value = item.status;
+                    select.addEventListener('change', () => updateProcurementStatus(item.id, select.value, select));
+                    statusCell.appendChild(select);
+                } else {
+                    const badge = document.createElement('span');
+                    badge.className = `inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses[item.status] || ''}`;
+                    badge.textContent = item.status === 'Service Entry Sheet/Goods Receipt' ? 'SES/GR' : item.status;
+                    statusCell.appendChild(badge);
+                }
                 row.appendChild(statusCell);
+
+                const values = [
+                    String(Number(item.id) - 1),
+                    item.type,
+                    item.name,
+                    item.atcNo,
+                    item.atcDate,
+                    item.wbsCode,
+                    item.torNo,
+                    item.requestDate,
+                    item.prNo,
+                    item.prDate,
+                    item.poNo,
+                    item.poDate,
+                    item.sesGrDate
+                ];
+                values.forEach((value, valueIndex) => {
+                    const cell = document.createElement('td');
+                    cell.className = 'px-3 py-2 whitespace-nowrap text-slate-600 dark:text-slate-300';
+                    if (valueIndex === 2) {
+                        const nameButton = document.createElement('button');
+                        nameButton.type = 'button';
+                        nameButton.className = 'font-semibold text-blue-700 hover:underline dark:text-accentDark';
+                        nameButton.textContent = value;
+                        nameButton.addEventListener('click', () => openProcurementDetails(item.id));
+                        cell.appendChild(nameButton);
+                    } else {
+                        cell.textContent = value || '—';
+                    }
+                    row.appendChild(cell);
+                });
                 tbody.appendChild(row);
             });
         }
 
-        function openProcurementModal() {
-            const today = new Date();
-            const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-            document.getElementById('procurementItemDate').value = localDate;
+        function selectProcurementFieldValue(id, item, field) {
+            document.getElementById(id).value = item ? item[field] || '' : '';
+        }
+
+        function openProcurementModal(id = '') {
+            const form = document.getElementById('formProcurement');
+            form.reset();
+            const item = id ? procurementItems.find(record => String(record.id) === String(id)) : null;
+            if (id && !item) {
+                alert('The procurement item was not found. Refresh the list and try again.');
+                return;
+            }
+            document.getElementById('procurementItemId').value = item ? item.id : '';
+            document.getElementById('procurement-modal-title').textContent = item ? 'Edit Procurement Item' : 'Add Procurement Item';
+            document.getElementById('saveProcurementItemButton').textContent = item ? 'Save Changes' : 'Save Item';
+            [
+                ['procurementItemType', item || { type: 'Goods' }, 'type'],
+                ['procurementItemStatus', item || { status: 'Request' }, 'status'],
+                ['procurementItemName', item, 'name'],
+                ['procurementAtcNo', item, 'atcNo'],
+                ['procurementAtcDate', item, 'atcDate'],
+                ['procurementWbsCode', item, 'wbsCode'],
+                ['procurementTorNo', item, 'torNo'],
+                ['procurementRequestDate', item, 'requestDate'],
+                ['procurementPrNo', item, 'prNo'],
+                ['procurementPrDate', item, 'prDate'],
+                ['procurementPoNo', item, 'poNo'],
+                ['procurementPoDate', item, 'poDate'],
+                ['procurementSesGrDate', item, 'sesGrDate'],
+                ['procurementDescription', item, 'description']
+            ].forEach(([fieldId, record, field]) => selectProcurementFieldValue(fieldId, record, field));
             toggleModal('modalProcurement');
         }
 
         async function submitProcurementItem(event) {
             event.preventDefault();
-            const name = document.getElementById('procurementItemName').value.trim();
-            const quantity = Number(document.getElementById('procurementItemQuantity').value);
-            const unit = document.getElementById('procurementItemUnit').value.trim();
-            const stage = document.getElementById('procurementItemStage').value;
-            const date = document.getElementById('procurementItemDate').value;
-            const status = document.getElementById('procurementItemStatus').value;
-
-            if (!name || !unit || !Number.isFinite(quantity) || quantity <= 0 || !date) {
-                alert('Enter an item name, a quantity greater than zero, a unit, and a date.');
-                return;
-            }
-
-            if (!PROCUREMENT_STAGES.some(option => option.value === stage) ||
-                !RECORD_STATUSES.includes(status)) {
-                alert('The procurement stage or status is invalid.');
-                return;
-            }
-
-            const button = document.querySelector('#formProcurement button[type="submit"]');
+            const button = document.getElementById('saveProcurementItemButton');
             button.disabled = true;
             button.textContent = 'Saving...';
-
             try {
                 const params = new URLSearchParams({
-                    action: 'add_procurement',
+                    action: 'save_procurement',
                     token: getAuthToken(),
-                    name,
-                    quantity: String(quantity),
-                    unit,
-                    stage,
-                    date,
+                    id: document.getElementById('procurementItemId').value,
+                    type: document.getElementById('procurementItemType').value,
+                    status: document.getElementById('procurementItemStatus').value,
+                    name: document.getElementById('procurementItemName').value.trim(),
+                    atcNo: document.getElementById('procurementAtcNo').value.trim(),
+                    atcDate: document.getElementById('procurementAtcDate').value,
+                    wbsCode: document.getElementById('procurementWbsCode').value.trim(),
+                    torNo: document.getElementById('procurementTorNo').value.trim(),
+                    requestDate: document.getElementById('procurementRequestDate').value,
+                    prNo: document.getElementById('procurementPrNo').value.trim(),
+                    prDate: document.getElementById('procurementPrDate').value,
+                    poNo: document.getElementById('procurementPoNo').value.trim(),
+                    poDate: document.getElementById('procurementPoDate').value,
+                    sesGrDate: document.getElementById('procurementSesGrDate').value,
+                    description: document.getElementById('procurementDescription').value.trim()
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: params.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success' || !result.item) {
+                    throw new Error(result.message || 'The server did not confirm the item save.');
+                }
+                const existingIndex = procurementItems.findIndex(item => String(item.id) === String(result.item.id));
+                if (existingIndex < 0) procurementItems.push(result.item);
+                else procurementItems[existingIndex] = { ...result.item, attachments: procurementItems[existingIndex].attachments || {} };
+                renderProcurementItems();
+                toggleModal('modalProcurement');
+            } catch (error) {
+                console.error('Failed to save procurement item:', error);
+                alert(`Failed to save the item: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = document.getElementById('procurementItemId').value ? 'Save Changes' : 'Save Item';
+            }
+        }
+
+        async function updateProcurementStatus(id, status, select) {
+            const item = procurementItems.find(record => String(record.id) === String(id));
+            if (!item) return;
+            const previousStatus = item.status;
+            select.disabled = true;
+            try {
+                const params = new URLSearchParams({
+                    action: 'save_procurement',
+                    token: getAuthToken(),
+                    id: String(item.id),
+                    ...Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'id' && key !== 'attachments')),
                     status
                 });
                 const response = await fetch(SCRIPT_URL, {
@@ -4582,25 +4767,322 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
                     body: params.toString()
                 });
-                if (!response.ok) {
-                    throw new Error(`The server returned HTTP ${response.status}.`);
-                }
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
                 const result = await response.json();
-                if (result.status !== 'success' || !result.item) {
-                    throw new Error(result.message || 'The server did not confirm the item save.');
-                }
-
-                procurementItems = [...procurementItems, result.item];
+                if (result.status !== 'success' || !result.item) throw new Error(result.message || 'The status was not saved.');
+                Object.assign(item, result.item);
                 renderProcurementItems();
-                document.getElementById('formProcurement').reset();
-                document.getElementById('procurementItemUnit').value = 'pcs';
-                toggleModal('modalProcurement');
             } catch (error) {
-                console.error('Failed to save procurement item to the spreadsheet:', error);
-                alert(`Failed to save the item to the spreadsheet: ${error.message}`);
+                console.error('Failed to update procurement status:', error);
+                select.value = previousStatus;
+                select.disabled = false;
+                alert(`Failed to update item status: ${error.message}`);
+            }
+        }
+
+        async function deleteProcurementItem(id) {
+            const item = procurementItems.find(record => String(record.id) === String(id));
+            if (!item || !confirm(`Remove procurement item "${item.name}" and its attached files?`)) return;
+            try {
+                const params = new URLSearchParams({ action: 'delete_procurement', token: getAuthToken(), id: String(id) });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: params.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message || 'The item was not removed.');
+                await loadProcurementItems();
+            } catch (error) {
+                console.error('Failed to remove procurement item:', error);
+                alert(`Failed to remove item: ${error.message}`);
+            }
+        }
+
+        function openProcurementDetails(id) {
+            const item = procurementItems.find(record => String(record.id) === String(id));
+            if (!item) {
+                alert('The procurement item was not found. Refresh the list and try again.');
+                return;
+            }
+            renderProcurementDetails(item);
+            toggleModal('modalProcurementDetails');
+        }
+
+        function closeProcurementDetails() {
+            toggleModal('modalProcurementDetails');
+        }
+
+        function renderProcurementDetails(item) {
+            procurementPreviewObjectUrls.forEach(URL.revokeObjectURL);
+            procurementPreviewObjectUrls = [];
+            document.getElementById('procurement-details-title').textContent = item.name;
+            document.getElementById('procurement-details-subtitle').textContent = `${item.type} · ${item.status}`;
+
+            const photoContainer = document.getElementById('procurement-details-photo');
+            photoContainer.replaceChildren();
+            const photoFiles = item.attachments?.['Equipment Photo'] || [];
+            photoContainer.classList.toggle('hidden', photoFiles.length === 0);
+            photoFiles.forEach(file => {
+                const card = document.createElement('div');
+                card.className = 'mb-4';
+                const heading = document.createElement('h4');
+                heading.className = 'mb-3 text-base font-bold';
+                heading.textContent = file.fileName;
+                const preview = document.createElement('div');
+                card.append(heading, preview);
+                photoContainer.appendChild(card);
+                loadProcurementFilePreview(file, preview, true);
+                if (canEditProjectData()) {
+                    card.appendChild(createProcurementRemoveFileButton(item, 'Equipment Photo', file));
+                }
+            });
+
+            const fields = [
+                ['Type', item.type],
+                ['Status', item.status],
+                ['ATC No', item.atcNo],
+                ['ATC Date', item.atcDate],
+                ['WBS Code', item.wbsCode],
+                ['No TOR', item.torNo],
+                ['Request', item.requestDate],
+                ['No PR', item.prNo],
+                ['Tanggal PR', item.prDate],
+                ['No PO', item.poNo],
+                ['Tanggal PO', item.poDate],
+                ['SES/GR', item.sesGrDate],
+                ['Description', item.description]
+            ];
+            const fieldsContainer = document.getElementById('procurement-details-fields');
+            fieldsContainer.replaceChildren();
+            fields.forEach(([labelText, valueText]) => {
+                const card = document.createElement('div');
+                card.className = 'rounded-lg border border-slate-200 p-3 dark:border-slate-700';
+                const label = document.createElement('p');
+                label.className = 'text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400';
+                label.textContent = labelText;
+                const value = document.createElement('p');
+                value.className = 'mt-1 whitespace-pre-wrap break-words text-sm font-medium';
+                value.textContent = valueText || '—';
+                card.append(label, value);
+                fieldsContainer.appendChild(card);
+            });
+
+            const documents = document.getElementById('procurement-details-documents');
+            documents.replaceChildren();
+            PROCUREMENT_FILE_TYPES.filter(type => type !== 'Equipment Photo').forEach(type => {
+                const section = document.createElement('section');
+                section.className = 'rounded-xl border border-slate-200 p-4 dark:border-slate-700';
+                const title = document.createElement('h5');
+                title.className = 'mb-3 font-semibold';
+                title.textContent = type;
+                section.appendChild(title);
+                const files = item.attachments?.[type] || [];
+                if (!files.length) {
+                    const empty = document.createElement('p');
+                    empty.className = 'text-sm text-slate-500 dark:text-slate-400';
+                    empty.textContent = 'No file uploaded.';
+                    section.appendChild(empty);
+                } else {
+                    files.forEach(file => {
+                        const fileCard = document.createElement('div');
+                        fileCard.className = 'mb-4 last:mb-0';
+                        const fileName = document.createElement('p');
+                        fileName.className = 'mb-2 break-all text-sm font-medium';
+                        fileName.textContent = file.fileName;
+                        const preview = document.createElement('div');
+                        fileCard.append(fileName, preview);
+                        loadProcurementFilePreview(file, preview, false);
+                        const link = document.createElement('a');
+                        link.href = `https://drive.google.com/file/d/${encodeURIComponent(file.fileId)}/view`;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        link.className = 'mt-2 inline-block text-sm text-blue-600 hover:underline dark:text-accentDark';
+                        link.textContent = 'Open in Google Drive';
+                        fileCard.appendChild(link);
+                        if (canEditProjectData()) fileCard.appendChild(createProcurementRemoveFileButton(item, type, file));
+                        section.appendChild(fileCard);
+                    });
+                }
+                documents.appendChild(section);
+            });
+
+            const uploadFields = document.getElementById('procurement-upload-fields');
+            uploadFields.replaceChildren();
+            if (canEditProjectData()) {
+                PROCUREMENT_FILE_TYPES.forEach(type => {
+                    const wrapper = document.createElement('label');
+                    wrapper.className = 'block text-xs font-semibold text-slate-600 dark:text-slate-300';
+                    const label = document.createElement('span');
+                    label.className = 'mb-1 block';
+                    label.textContent = type;
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.multiple = true;
+                    input.accept = type === 'Equipment Photo'
+                        ? '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'
+                        : '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
+                    input.className = 'block w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-800';
+                    input.addEventListener('change', event => uploadProcurementAttachments(event, type, item.id));
+                    wrapper.append(label, input);
+                    uploadFields.appendChild(wrapper);
+                });
+            }
+        }
+
+        function createProcurementRemoveFileButton(item, type, file) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'ml-3 text-xs font-semibold text-red-600 hover:underline dark:text-red-300';
+            button.textContent = 'Remove file';
+            button.addEventListener('click', () => removeProcurementFile(item.id, type, file.fileId));
+            return button;
+        }
+
+        async function loadProcurementFilePreview(file, container, photoOnly) {
+            try {
+                const params = new URLSearchParams({
+                    action: 'get_procurement_file',
+                    token: getAuthToken(),
+                    id: file.fileId
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: params.toString()
+                });
+                if (!response.ok) throw new Error(`The preview server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success' || !result.data) {
+                    throw new Error(result.message || 'The preview server returned no file data.');
+                }
+                if (photoOnly && !result.mimeType.startsWith('image/')) {
+                    throw new Error('Equipment Photo must be an image.');
+                }
+                const binary = atob(result.data);
+                const bytes = new Uint8Array(binary.length);
+                for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+                const objectUrl = URL.createObjectURL(new Blob([bytes], { type: result.mimeType }));
+                if (document.getElementById('modalProcurementDetails').classList.contains('hidden')) {
+                    URL.revokeObjectURL(objectUrl);
+                    return;
+                }
+                procurementPreviewObjectUrls.push(objectUrl);
+                const preview = result.mimeType.startsWith('image/')
+                    ? document.createElement('img')
+                    : document.createElement('iframe');
+                preview.src = objectUrl;
+                preview.className = photoOnly
+                    ? 'max-h-[28rem] w-full rounded-xl border border-slate-200 bg-slate-50 object-contain dark:border-slate-700 dark:bg-slate-900'
+                    : 'h-72 w-full rounded-lg bg-slate-100 object-contain dark:bg-slate-900';
+                preview.title = file.fileName;
+                if (preview.tagName === 'IMG') preview.alt = file.fileName;
+                else {
+                    preview.loading = 'lazy';
+                    preview.allowFullscreen = true;
+                }
+                container.replaceChildren(preview);
+            } catch (error) {
+                console.error('Failed to load Procurement file preview:', error);
+                const message = document.createElement('p');
+                message.className = 'text-sm text-red-600 dark:text-red-300';
+                message.textContent = `Preview unavailable: ${error.message}`;
+                container.replaceChildren(message);
+            }
+        }
+
+        async function uploadProcurementAttachments(event, fileType, itemId) {
+            const input = event.currentTarget;
+            const files = Array.from(input.files || []);
+            if (!files.length) return;
+            let progressStarted = false;
+            let uploadedAny = false;
+            try {
+                beginUploadProgress(`Uploading ${fileType}`, files.length);
+                progressStarted = true;
+                for (let index = 0; index < files.length; index++) {
+                    const file = files[index];
+                    updateUploadProgress('Uploading to Google Drive', index, file.name);
+                    await uploadProcurementFile(file, itemId, fileType);
+                    uploadedAny = true;
+                    updateUploadProgress('Uploaded', index + 1, file.name);
+                }
+                input.value = '';
+                await loadProcurementItems();
+                const item = procurementItems.find(record => String(record.id) === String(itemId));
+                if (item) renderProcurementDetails(item);
+            } catch (error) {
+                console.error('Failed to upload Procurement attachment:', error);
+                if (uploadedAny) {
+                    await loadProcurementItems();
+                    const item = procurementItems.find(record => String(record.id) === String(itemId));
+                    if (item) renderProcurementDetails(item);
+                }
+                alert(`Failed to upload ${fileType}: ${error.message}`);
             } finally {
-                button.disabled = false;
-                button.textContent = 'Save Item';
+                if (progressStarted) finishUploadProgress();
+            }
+        }
+
+        async function uploadProcurementFile(file, itemId, fileType) {
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) throw new Error(`${file.name}: upload a PDF or image file.`);
+            if (fileType === 'Equipment Photo' && !file.type.startsWith('image/')) {
+                throw new Error(`${file.name}: Equipment Photo must be an image.`);
+            }
+            if (file.size > 15 * 1024 * 1024) throw new Error(`${file.name}: each file must be 15 MB or smaller.`);
+            const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+                reader.readAsDataURL(file);
+            });
+            const params = new URLSearchParams({
+                action: 'upload_procurement_file',
+                token: getAuthToken(),
+                id: String(itemId),
+                fileType,
+                fileName: file.name,
+                mimeType: file.type,
+                fileData: String(dataUrl).split(',')[1]
+            });
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: params.toString()
+            });
+            if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+            const result = await response.json();
+            if (result.status !== 'success' || !result.attachments) {
+                throw new Error(result.message || 'Google Drive did not confirm the upload.');
+            }
+        }
+
+        async function removeProcurementFile(itemId, fileType, fileId) {
+            if (!confirm('Remove this file from the Procurement item?')) return;
+            try {
+                const params = new URLSearchParams({
+                    action: 'remove_procurement_file',
+                    token: getAuthToken(),
+                    id: String(itemId),
+                    fileType,
+                    fileId
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: params.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message || 'The file was not removed.');
+                await loadProcurementItems();
+                const item = procurementItems.find(record => String(record.id) === String(itemId));
+                if (item) renderProcurementDetails(item);
+            } catch (error) {
+                console.error('Failed to remove Procurement attachment:', error);
+                alert(`Failed to remove file: ${error.message}`);
             }
         }
 
@@ -4614,6 +5096,7 @@
             const pageIds = {
                 package: 'packagePage',
                 equipment: 'equipmentPage',
+                procurement: 'procurementPage',
                 history: 'historyPage',
                 users: 'usersPage'
             };
@@ -4631,12 +5114,14 @@
             const searchPlaceholders = {
                 package: 'Search Package...',
                 equipment: 'Search Equipment...',
+                procurement: 'Search Procurement...',
                 history: 'Search History...',
                 users: 'Search Users...'
             };
             document.getElementById('recordSearch').placeholder = searchPlaceholders[page] || 'Search...';
 
-            if (page === 'history') loadHistory();
+            if (page === 'procurement') loadProcurementItems();
+            else if (page === 'history') loadHistory();
             else if (page === 'users') loadUsers();
 
             if (window.innerWidth < 768) {
