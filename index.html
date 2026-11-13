@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Procurement, Package &amp; Equipment | 7.0 Mtpa Expansion Plant</title>
+    <link id="appFavicon" rel="icon" href="https://archiindonesia.com/wp-content/uploads/2024/11/logo-archi-full.webp">
     <!-- Google Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -875,6 +876,21 @@
                             <i class="fa-solid fa-user-plus mr-2" aria-hidden="true"></i>Add User
                         </button>
                     </div>
+                    <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard p-6 shadow-sm">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h3 class="font-bold">Browser Tab Icon</h3>
+                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Upload a PNG image up to 1 MB. It will be saved to Google Drive and viewable by anyone with the link.</p>
+                            </div>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                <input id="faviconFileInput" type="file" accept="image/png" class="max-w-full text-sm text-slate-600 dark:text-slate-300">
+                                <button id="uploadFaviconButton" type="button" onclick="uploadFavicon()" class="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-amber-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50">
+                                    Upload Icon
+                                </button>
+                            </div>
+                        </div>
+                        <p id="faviconUploadStatus" class="mt-3 text-sm text-slate-500 dark:text-slate-400" role="status" aria-live="polite">The current browser tab icon is loaded from Google Drive.</p>
+                    </div>
                     <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard shadow-sm">
                         <table class="list-table w-full min-w-[1100px] border-collapse text-left">
                             <thead>
@@ -1571,6 +1587,7 @@
         let currentPage = 'package';
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadPublicFavicon().catch(error => console.error('Failed to load the browser tab icon:', error));
             initializeEquipmentForm();
             initializeBulkEquipmentFiles();
             initializePackageStatuses();
@@ -4282,6 +4299,81 @@
                 cell.textContent = `Failed to load users: ${error.message}`;
                 row.appendChild(cell);
                 tbody.appendChild(row);
+            }
+        }
+
+        async function loadPublicFavicon() {
+            const response = await fetch(`${SCRIPT_URL}?action=get_favicon`);
+            if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+            const result = await response.json();
+            if (result.status !== 'success') {
+                throw new Error(result.message || 'The server did not return the browser tab icon.');
+            }
+            if (result.faviconUrl) {
+                document.getElementById('appFavicon').href = result.faviconUrl;
+            }
+        }
+
+        async function uploadFavicon() {
+            const input = document.getElementById('faviconFileInput');
+            const button = document.getElementById('uploadFaviconButton');
+            const status = document.getElementById('faviconUploadStatus');
+            const file = input.files[0];
+            if (!file) {
+                status.textContent = 'Choose a PNG image first.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+            if (file.type !== 'image/png' || file.size > 1024 * 1024) {
+                status.textContent = 'Choose a PNG image no larger than 1 MB.';
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Uploading...';
+            status.textContent = 'Uploading the icon to Google Drive...';
+            status.className = 'mt-3 text-sm text-slate-500 dark:text-slate-400';
+            try {
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Could not read the selected image.'));
+                    reader.readAsDataURL(file);
+                });
+                const fileData = String(dataUrl).split(',')[1];
+                const params = new URLSearchParams({
+                    action: 'upload_favicon',
+                    token: getAuthToken(),
+                    mimeType: file.type,
+                    fileData
+                });
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: params.toString()
+                });
+                if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+                const result = await response.json();
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'The icon could not be uploaded.');
+                }
+                if (!/^https:\/\/drive\.google\.com\/uc\?export=view&id=[A-Za-z0-9_-]+$/.test(result.faviconUrl || '')) {
+                    throw new Error('The server returned an invalid Google Drive icon URL.');
+                }
+                document.getElementById('appFavicon').href = `${result.faviconUrl}&v=${Date.now()}`;
+                status.textContent = result.warning
+                    ? `Icon uploaded and shared publicly. ${result.warning}`
+                    : 'Icon uploaded to Google Drive and shared with anyone who has the link.';
+                status.className = 'mt-3 text-sm text-emerald-700 dark:text-emerald-300';
+                input.value = '';
+            } catch (error) {
+                console.error('Failed to upload the browser tab icon:', error);
+                status.textContent = `Icon upload failed: ${error.message}`;
+                status.className = 'mt-3 text-sm text-red-600 dark:text-red-400';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Upload Icon';
             }
         }
 
