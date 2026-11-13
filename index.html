@@ -694,6 +694,11 @@
                                     <th class="py-3 px-3 font-semibold">No</th>
                                     <th class="py-3 px-3 font-semibold">Type</th>
                                     <th class="py-3 px-3 font-semibold">Item Name</th>
+                                    <th class="py-3 px-3 font-semibold">Unit</th>
+                                    <th class="py-3 px-3 font-semibold">Qty</th>
+                                    <th class="py-3 px-3 font-semibold">Currency</th>
+                                    <th class="py-3 px-3 font-semibold">Value per Unit</th>
+                                    <th class="py-3 px-3 font-semibold">Value Overall</th>
                                     <th class="py-3 px-3 font-semibold">ATC No</th>
                                     <th class="py-3 px-3 font-semibold">ATC Date</th>
                                     <th class="py-3 px-3 font-semibold">WBS Code</th>
@@ -706,7 +711,7 @@
                                     <th class="py-3 px-3 font-semibold">SES/GR</th>
                                 </tr></thead>
                                 <tbody id="procurement-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                    <tr><td colspan="15" class="py-6 text-center text-slate-400">No procurement items yet.</td></tr>
+                                    <tr><td colspan="20" class="py-6 text-center text-slate-400">No procurement items yet.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -929,6 +934,11 @@
                     <div><label for="procurementItemType" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Type</label><select id="procurementItemType" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option>Service</option><option>Goods</option></select></div>
                     <div><label for="procurementItemStatus" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label><select id="procurementItemStatus" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option>Request</option><option>Purchase Requisition</option><option>Purchase Order</option><option>Service Entry Sheet/Goods Receipt</option></select></div>
                     <div class="sm:col-span-2"><label for="procurementItemName" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Item Name</label><input id="procurementItemName" type="text" required maxlength="200" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementUnit" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Unit</label><input id="procurementUnit" type="text" maxlength="80" placeholder="e.g. ea, set, lot" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementQuantity" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Qty</label><input id="procurementQuantity" type="number" min="0.000001" step="0.000001" value="1" oninput="updateProcurementOverallValueDisplay()" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementCurrency" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Currency</label><select id="procurementCurrency" onchange="updateProcurementOverallValueDisplay()" required class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"><option value="">Select currency</option><option value="IDR" selected>IDR</option><option value="AUD">AUD</option><option value="USD">USD</option></select></div>
+                    <div><label for="procurementValuePerUnit" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Value per Unit</label><input id="procurementValuePerUnit" type="number" min="0" step="0.01" oninput="updateProcurementOverallValueDisplay()" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
+                    <div><label for="procurementValueOverall" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Value Overall</label><input id="procurementValueOverall" type="text" readonly aria-label="Calculated overall value" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-100 dark:bg-slate-700 text-sm"></div>
                     <div><label for="procurementAtcNo" class="block text-xs font-semibold uppercase text-slate-500 mb-1">ATC No</label><input id="procurementAtcNo" maxlength="160" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                     <div><label for="procurementAtcDate" class="block text-xs font-semibold uppercase text-slate-500 mb-1">ATC Date</label><input id="procurementAtcDate" type="date" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
                     <div><label for="procurementWbsCode" class="block text-xs font-semibold uppercase text-slate-500 mb-1">WBS Code</label><input id="procurementWbsCode" maxlength="100" class="w-full p-2.5 rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></div>
@@ -3900,6 +3910,31 @@
             }).format(numericValue);
         }
 
+        function formatProcurementCurrency(value, currency) {
+            if (value === '' || value == null) return '—';
+            if (!['IDR', 'AUD', 'USD'].includes(currency)) return String(value);
+            return formatPackageVendorAmount(String(value), currency) || '—';
+        }
+
+        function updateProcurementOverallValueDisplay() {
+            const quantityText = document.getElementById('procurementQuantity').value;
+            const valuePerUnitText = document.getElementById('procurementValuePerUnit').value;
+            const currency = document.getElementById('procurementCurrency').value;
+            const overallInput = document.getElementById('procurementValueOverall');
+            if (!quantityText || !valuePerUnitText || !currency) {
+                overallInput.value = '';
+                return;
+            }
+            const quantity = Number(quantityText);
+            const valuePerUnit = Number(valuePerUnitText);
+            const totalCents = Math.round(quantity * valuePerUnit * 100);
+            if (!Number.isFinite(totalCents) || !Number.isSafeInteger(totalCents)) {
+                overallInput.value = '';
+                return;
+            }
+            overallInput.value = formatProcurementCurrency(String(totalCents / 100), currency);
+        }
+
         function renderPackageVendorRows(vendors) {
             const tbody = document.getElementById('package-vendors-table-body');
             tbody.replaceChildren();
@@ -4788,7 +4823,8 @@
             const filtered = typeItems.filter(item =>
                 (selectedProcurementStatus === 'all' || item.status === selectedProcurementStatus) &&
                 (!query || [
-                    item.type, item.status, item.name, item.atcNo, item.atcDate, item.wbsCode,
+                    item.type, item.status, item.name, item.unit, item.quantity, item.currency,
+                    item.valuePerUnit, item.valueOverall, item.atcNo, item.atcDate, item.wbsCode,
                     item.torNo, item.requestDate, item.prNo, item.prDate, item.poNo, item.poDate,
                     item.sesGrDate, item.description
                 ].join(' ').toLocaleLowerCase().includes(query))
@@ -4796,7 +4832,7 @@
             if (!filtered.length) {
                 const row = document.createElement('tr');
                 const cell = document.createElement('td');
-                cell.colSpan = 15;
+                cell.colSpan = 20;
                 cell.className = 'py-6 text-center text-slate-400';
                 cell.textContent = procurementItems.length ? 'No items match the selected filters.' : 'No procurement items yet.';
                 row.appendChild(cell);
@@ -4813,7 +4849,8 @@
             filtered.forEach(item => {
                 const row = document.createElement('tr');
                 row.dataset.searchText = [
-                    item.type, item.status, item.name, item.atcNo, item.atcDate, item.wbsCode,
+                    item.type, item.status, item.name, item.unit, item.quantity, item.currency,
+                    item.valuePerUnit, item.valueOverall, item.atcNo, item.atcDate, item.wbsCode,
                     item.torNo, item.requestDate, item.prNo, item.prDate, item.poNo, item.poDate,
                     item.sesGrDate, item.description
                 ].join(' ').toLocaleLowerCase();
@@ -4868,6 +4905,11 @@
                     String(Number(item.id) - 1),
                     item.type,
                     item.name,
+                    item.unit,
+                    item.quantity,
+                    item.currency,
+                    formatProcurementCurrency(item.valuePerUnit, item.currency),
+                    formatProcurementCurrency(item.valueOverall, item.currency),
                     item.atcNo,
                     item.atcDate,
                     item.wbsCode,
@@ -4913,10 +4955,17 @@
             document.getElementById('procurementItemId').value = item ? item.id : '';
             document.getElementById('procurement-modal-title').textContent = item ? 'Edit Procurement Item' : 'Add Procurement Item';
             document.getElementById('saveProcurementItemButton').textContent = item ? 'Save Changes' : 'Save Item';
+            document.getElementById('procurementQuantity').required = !item;
+            document.getElementById('procurementCurrency').required = !item;
+            const defaultItem = item || { type: 'Goods', status: 'Request', quantity: '1', currency: 'IDR' };
             [
-                ['procurementItemType', item || { type: 'Goods' }, 'type'],
-                ['procurementItemStatus', item || { status: 'Request' }, 'status'],
+                ['procurementItemType', defaultItem, 'type'],
+                ['procurementItemStatus', defaultItem, 'status'],
                 ['procurementItemName', item, 'name'],
+                ['procurementUnit', item, 'unit'],
+                ['procurementQuantity', defaultItem, 'quantity'],
+                ['procurementCurrency', defaultItem, 'currency'],
+                ['procurementValuePerUnit', item, 'valuePerUnit'],
                 ['procurementAtcNo', item, 'atcNo'],
                 ['procurementAtcDate', item, 'atcDate'],
                 ['procurementWbsCode', item, 'wbsCode'],
@@ -4929,6 +4978,7 @@
                 ['procurementSesGrDate', item, 'sesGrDate'],
                 ['procurementDescription', item, 'description']
             ].forEach(([fieldId, record, field]) => selectProcurementFieldValue(fieldId, record, field));
+            updateProcurementOverallValueDisplay();
             toggleModal('modalProcurement');
         }
 
@@ -4945,6 +4995,10 @@
                     type: document.getElementById('procurementItemType').value,
                     status: document.getElementById('procurementItemStatus').value,
                     name: document.getElementById('procurementItemName').value.trim(),
+                    unit: document.getElementById('procurementUnit').value.trim(),
+                    quantity: document.getElementById('procurementQuantity').value,
+                    currency: document.getElementById('procurementCurrency').value,
+                    valuePerUnit: document.getElementById('procurementValuePerUnit').value,
                     atcNo: document.getElementById('procurementAtcNo').value.trim(),
                     atcDate: document.getElementById('procurementAtcDate').value,
                     wbsCode: document.getElementById('procurementWbsCode').value.trim(),
@@ -5074,6 +5128,11 @@
             const fields = [
                 ['Type', item.type],
                 ['Status', item.status],
+                ['Unit', item.unit],
+                ['Qty', item.quantity],
+                ['Currency', item.currency],
+                ['Value per Unit', formatProcurementCurrency(item.valuePerUnit, item.currency)],
+                ['Value Overall', formatProcurementCurrency(item.valueOverall, item.currency)],
                 ['ATC No', item.atcNo],
                 ['ATC Date', item.atcDate],
                 ['WBS Code', item.wbsCode],
